@@ -11,7 +11,8 @@
 				make[1]: *** [scripts/kconfig/dochecklxdialog] 错误 1
 				make: *** [menuconfig] 错误 2
 		解决办法：yum install ncurses-devel
-![c0e054804c6017c25068bc740af82ca7](/C/Users/Administrator/Desktop/c0e054804c6017c25068bc740af82ca7.jpg)
+![c0e054804c6017c25068bc740af82ca7](/e/git/Learn-note/note picture/c0e054804c6017c25068bc740af82ca7.jpg)
+
 
 2014.11.04:
 	1.使用open函数时提示找不到fcnt1.h
