@@ -11,7 +11,7 @@
 				make[1]: *** [scripts/kconfig/dochecklxdialog] 错误 1
 				make: *** [menuconfig] 错误 2
 		解决办法：yum install ncurses-devel
-![c0e054804c6017c25068bc740af82ca7](/e/git/Learn-note/note picture/c0e054804c6017c25068bc740af82ca7.jpg)
+![c0e054804c6017c25068bc740af82ca7](https://github.com/LuoTuxiu/Learn-note/blob/master/note%20picture/c0e054804c6017c25068bc740af82ca7.jpg)
 
 
 2014.11.04:
