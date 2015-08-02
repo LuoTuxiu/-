@@ -397,3 +397,23 @@ NSURLRequest 申请的request是不可变的，但是NSMutableURLRequest是可�
 2.
 **学习技巧**：markdown使用说明：
 (1)control+shift+m 代表着开或者关preview界面（在mac中）；
+###2015.08.01
+1.
+**学习技巧**:
+UTF8String: **将NSString转换成UTF8编码的NSString**
+**参考网址**：http://blog.csdn.net/ios_db/article/details/22483989
+
+###2015.08.02
+1.
+**学习技巧**：关于自动释放池：
+自动释放池用@autoreleasepool；
+**参考网址**：http://blog.csdn.net/hherima/article/details/16355887
+2.
+**学习技巧**：**NSNotificationCenter** 
+iOS 提供了一种 "同步的" 消息通知机制，观察者只要向消息中心注册， 即可接受其他对象发送来的消息，消息发送者和消息接受者两者可以互相一无所知，完全解耦；
+**参考网址**：http://www.cnblogs.com/xunziji/p/3257447.html
+3.
+
+
+
+
