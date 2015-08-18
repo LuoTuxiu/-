@@ -412,8 +412,102 @@ UTF8String: **将NSString转换成UTF8编码的NSString**
 **学习技巧**：**NSNotificationCenter** 
 iOS 提供了一种 "同步的" 消息通知机制，观察者只要向消息中心注册， 即可接受其他对象发送来的消息，消息发送者和消息接受者两者可以互相一无所知，完全解耦；
 **参考网址**：http://www.cnblogs.com/xunziji/p/3257447.html
+
+###2015.08.
+1.
+**出现问题**：之前在xcode6上写的代码，在Xcode7真机调试时发现屏幕只能显示3.5寸的；
+**学习技巧**：参考了网络的各种教程，未能解决，但是今天解决了：
+![这里写图片描述](http://img.blog.csdn.net/20150812204457843)
+**将最后一行选成（Main）就可以了，之前是未选上的；**
+2.
+**学习技巧**：设置iOS设备转向的方法：
+![这里写图片描述](http://img.blog.csdn.net/20150812205211274)
+prtrait:纵向；
+upside down:纵向倒转；
+landscape left：横向朝左；
+landscape right: 横向朝右；
+
+
+2015.08.14
+1.
+**出现问题**：在编写类的初始化函数时出现以下错误：
+Cannot assign to 'self' outside of a method in the init family
+ **解决问题**：
+ >原因：只能在init方法中给self赋值，Xcode判断是否为init方法规则：方法返回id，并且名字以init     +大写字母开头+其他  为准则。例如：- (id) initWithXXX;
+出错代码：- (id) Myinit{
+  self = [super init];
+  ……
+}
+解决方法：- (id) initWithMy
+{
+  self = [super init];
+}
+
+**参考网址**：http://blog.sina.com.cn/s/blog_4aacd7af01011woj.html
+
+2015.08.17
+1.
+**学习技巧：**关于ios以及mac中版本号的常识
+>NS_AVAILABLE_IOS(5_0),这就告诉我们这个方法可以在iOS5.0及以后的版本中使用。如果我们在比指定版本更老的版本中调用这个方法，就会引起崩溃。
+>NS_DEPRECATED_IOS(2_0, 6_0)这个宏中有两个版本号。前面一个表明了这个方法被引入时的iOS版本，后面一个表明它被废弃时的iOS版本。被废弃并不是指这个方法就不存在了，只是意味着我们应当开始考虑将相关代码迁移到新的API上去了。
+>NS_AVAILABLE(10_8, 6_0),这里的NS_AVAILABLE宏告诉我们这方法分别随Mac OS 10.8和iOS 6.0被引入。
+>NS_DEPRECATED(10_0, 10_6, 2_0, 4_0),这里表示这个方法随Mac OS 10.0和iOS 2.0被引入，在Mac OS 10.6和iOS 4.0后被废弃。
+**参考网址：**http://codingobjc.com/blog/2014/02/11/ni-xu-yao-zhi-dao-de-suo-you-guan-yu-ioshe-os-xyi-qi-yong-de-apide-shi-er/
+
+2.
+respondsToSelector
+**学习技巧：**
+>-(BOOL) respondsToSelector: selector 用来判断是否有以某个名字命名的方法(被封装在一个selector的对象里传递)
+
+**参考网址：**http://blog.csdn.net/firefly7788/article/details/8480092
+
 3.
+**学习技巧：**NSNotFound的基本用法
+>例一：
+NSString *_string = [NSStringstrinWithFormat:@"123 456"];
+NSRange _range = [_stringrangeOfString:@" "];
+if (_range.location != NSNotFound){
+     //有空格
+}else{
+     //没有空格
+}
+ 
+先查找空格的位置，然后查找到不到位置的即为-1.可以知道是否有空格
+ 
+例二：
+if ([videoURL rangeOfString:@"http://".location!=NSNotFound|| [videoURL rangeOFString:@"https://"].location != NSNotFound] )
+{
+      //网络请求格式正常
+}else{
+      //网络请求格式不是以http或者https开头的     
+}
+ 
+NSNotFound是用来判断这个字符串是否符合网络请求格式，即以http或https开头。NSNotFound字面理解就好。
 
+**参考网址：**http://blog.csdn.net/braver_smile/article/details/40825971
 
+4.
+**学习技巧：** UIButton详解
+**参考网址：**http://blog.csdn.net/vincent_zeze/article/details/15339987
 
+2015.08.18
+1.
+**学习技巧：**今天调试的时候，发现开关总是引发意外退出，这是查看调试信息，说找不到其中一个执行函数，发现这时候是我对开关连接了两个动作函数，但是我后来又删除了其中一个动作函数，但并不在storyboard上删除，导致系统找不到该函数而退出；
+2.
+**学习技巧：** Debug和Release版本区别
+**参考网址：**http://blog.csdn.net/mad1989/article/details/40658033
 
+3.
+**学习技巧：**
+Objective-C 的 Nullability 特性
+**参考网址：**http://xuexuefeng.com/nullability-feature-of-objective-c/
+
+4.
+**出现问题**：
+connectSuccessful原本定义的是类里面的成员，同时也定义为block类型的，在首次使用block去更改它的值时是没有问题的，但是如果重新生成了一次该对象，相应地类里面的成员connectSuccessful也会重新生成，但是实际上在block里面connectSuccessful（原变量）依然存在，所以导致block内和block外两者值不一样；
+**解决问题**：
+首先，通过打印block内和block外该成员变量地址可以找出问题所在，接着，又查到
+>Block变量，被__block修饰的变量称作Block变量。 基本类型的Block变量等效于全局变量、或静态变量。
+
+仔细想想，应该是block改变了该变量的生存期，所以，得以解释；
+参考网址：http://tanqisen.github.io/blog/2013/04/19/gcd-block-cycle-retain/
