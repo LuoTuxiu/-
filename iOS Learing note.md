@@ -822,3 +822,1309 @@ delloc可以重写，**但是在ARC下不需要使用[super dealloc];**
 @end
 
 ```
+
+2015.08.26
+1.
+**出现问题：**
+>如果UIScrollView无法滚动，可能是以下原因：
+没有设置contentSize
+scrollEnabled = NO
+没有接收到触摸事件:userInteractionEnabled = NO
+没有取消autolayout功能（如果在Storyboard中添加了ScrollView的子控件，要想scrollView滚动，必须取消autolayout）.
+
+2.
+关于UIScrollView的各种尺寸：
+![这里写图片描述](http://img.blog.csdn.net/20150826084124550)
+**注意，这里的contentOffset、contentSize的原点是不包括contentInset的；**
+
+3.
+```
+#import "HMViewController.h"
+
+@interface HMViewController ()
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, strong) UIImageView *imageView;
+
+// 假设图像是从网络上获取的
+@property (nonatomic, strong) UIImage *image;
+
+@end
+
+@implementation HMViewController
+
+// 图像的setter
+- (void)setImage:(UIImage *)image
+{
+    _image = image;
+    
+    // 设置图像视图的内容
+    self.imageView.image = image;
+    // 让图像视图根据图像自动调整大小
+    [self.imageView sizeToFit];
+    
+    // 告诉scrollView内部内容的实际大小
+    self.scrollView.contentSize = image.size;
+}
+
+//UIImageView相当于相框，UIImage相当于相框里面的照片
+- (UIImageView *)imageView
+{
+    if (_imageView == nil) {
+        _imageView = [[UIImageView alloc] init];
+        
+        [self.scrollView addSubview:_imageView];
+    }
+    return _imageView;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    // 设置图像
+    self.image = [UIImage imageNamed:@"minion"];//选取叫做minion的图片，必须将图片复制进来Images.xcassets
+    
+    // 设置边距，scrollView距离屏幕边缘的设置
+    self.scrollView.contentInset = UIEdgeInsetsMake(20, 20, 20, 20);
+    
+    // 不显示水平滚动标示，就是右边的下边提示框
+    self.scrollView.showsHorizontalScrollIndicator = NO;
+    // 不显示垂直滚动标示
+    self.scrollView.showsVerticalScrollIndicator = NO;
+    
+    // *** （重要）偏移位置
+    self.scrollView.contentOffset = CGPointMake(0, -100);//注意是负数
+    
+    // 取消弹簧效果，内容固定，不希望出现弹簧效果时
+    // 不要跟bounds属性搞混了
+    self.scrollView.bounces = YES;
+    
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeContactAdd];//+号的button
+    btn.center = self.view.center;
+    [self.view addSubview:btn];//这个代表将button添加到view，随view改变，所以和scrollView不同层次，所以scrollView动，不跟着移动
+    //[self.scrollView addSubview:btn];//这个代表将button添加到scrollView，随scrollView改变，就是scrollView移动，也跟着移动
+    [btn addTarget:self action:@selector(click) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)click
+{
+    // 移动大图的偏移位置，相对于视图的偏移位置
+    CGPoint offset = self.scrollView.contentOffset;
+    offset.x += 20;
+    offset.y += 20;
+    
+    // 注意：设置contentOffset会忽略contentSize
+    self.scrollView.contentOffset = offset;
+}
+
+@end
+
+```
+
+
+4.
+**学习技巧：**
+复制控件时按住option键，移动鼠标即可，先松鼠标的手，再松option键；
+
+5.
+**学习技巧：**
+>UIScrollView的用法很简单
+将需要展示的内容添加到UIScrollView中
+设置UIScrollView的contentSize属性，告诉UIScrollView所有内容的尺寸，也就是告诉它滚动的范围（能滚多远，滚到哪里是尽头）
+
+6.
+```
+// 系统加载了Main.storyboard后，给scrollView对象进行赋值
+// setScrollView是由系统自动调用的,先调用setScrollView再调用viewDidLoad
+//- (void)setScrollView:(UIScrollView *)scrollView
+//{
+    // setter方法中，第一句赋值
+//    _scrollView = scrollView;
+//    
+//    // 设置边距,与后面的设置有先后顺序
+//    self.scrollView.contentInset = UIEdgeInsetsMake(64, 0, 49, 0);
+//    
+ //   NSLog(@"%s", __func__);
+//
+//    // 设置滚动视图内容
+//    // 1> 如果当前有间距，根据间距自动调整contentOffset
+//    // 2> 如果没有间距，contentOffset是(0,0)
+//    CGFloat h = CGRectGetMaxY(self.lastButton.frame) + 10;
+//    self.scrollView.contentSize = CGSizeMake(0, h);
+//}
+
+// 视图加载完成之后执行
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    NSLog(@"%s %@", __func__, self.scrollView1);
+
+    // 设置间距
+    // 只是指定内容外侧边距，并不会根据contentSize自动调整contentOffset
+//    self.scrollView.contentInset = UIEdgeInsetsMake(64, 0, 49, 0);
+//    // 修改contentOffset
+//    self.scrollView.contentOffset = CGPointMake(0, -64);
+}
+```
+
+7.
+**学习技巧：**
+```
+ // 设置代理
+        _scrollView.delegate = self;
+        // 设置最大/最小缩放比例
+        _scrollView.maximumZoomScale = 2.0;
+        _scrollView.minimumZoomScale = 0.2;
+
+```
+
+实现代理：
+```
+#pragma mark - UIScrollView的代理方法
+/**
+ 1> 设置了代理
+ 2> 指定了最大、最小的缩放比例
+ 
+ 表示ScrollView是可以缩放的
+ 
+ 代理方法的"返回值"实际上就是控制器告诉滚动视图，要缩放的是UIImageView
+ */
+// 告诉ScrollView要缩放的视图是谁，具体的缩放实现，是由ScrollView来完成的
+// 1> scrollView要知道缩放谁
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
+{
+    return self.imageView;
+}
+
+// 2> 滚动视图即将开始缩放，通常不需要写
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view
+{
+    NSLog(@"%s", __func__);
+}
+
+// 3> 正在缩放，通常也不需要实现
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView
+{
+    //    NSLog(@"%s", __func__);
+    NSLog(@"%@", NSStringFromCGAffineTransform(self.imageView.transform));//这句话应该打印了具体的缩放信息
+}
+
+// 4> 完成缩放，通常也不需要实现
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
+{
+    NSLog(@"%s", __func__);
+}
+
+```
+
+8.
+**学习技巧：**
+如果在soryboard中拖控件，则不需要alloc控件；
+如果是自己代码添加，则参考如下：
+```
+- (UIScrollView *)scrollView
+{
+    if (_scrollView == nil) {
+        _scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+        
+        // 设置属性
+        // 设置边距
+        _scrollView.contentInset = UIEdgeInsetsMake(20, 20, 20, 20);
+        
+        // 不显示水平滚动标示
+        _scrollView.showsHorizontalScrollIndicator = NO;
+        // 不显示垂直滚动标示
+        _scrollView.showsVerticalScrollIndicator = NO;
+        
+        // *** 偏移位置
+        _scrollView.contentOffset = CGPointMake(0, 0);
+        
+        // 取消弹簧效果，内容固定，不希望出现弹簧效果时
+        // 不要跟bounds属性搞混了
+        _scrollView.bounces = NO;
+        
+        // 设置代理
+        _scrollView.delegate = self;
+        // 设置最大/最小缩放比例
+        _scrollView.maximumZoomScale = 2.0;
+        _scrollView.minimumZoomScale = 0.2;
+        
+        [self.view addSubview:_scrollView];
+    }
+    return _scrollView;
+}
+
+```
+
+9.
+**学习技巧：**
+可以在Xcode查看各种布局效果，如下：
+![这里写图片描述](http://img.blog.csdn.net/20150826103052831)
+第二个是设置显示方向（水平或者垂直）
+
+10.
+**学习技巧：**
+自动布局中设置水平居中或者垂直居中：
+![这里写图片描述](http://img.blog.csdn.net/20150826103209217)
+
+11.
+**学习技巧：**在Xcode中如果需要改变同名的变量，可以这样做：
+将光标点在该单词，但出现下三角形的符号的时候，点击下三角形，然后点击edit，这是就已经选中了全部同名的变量，直接修改就等于了修改全部的变量；
+
+12.
+**学习技巧：**
+```
+    // 计时器
+    /** 
+     参数说明 
+     1. (NSTimeInterval)ti 时间间隔，double
+     2. target:self 监听时钟触发的对象
+     3. selector  调用方法
+     4. userInfo，可以是任意对象，通常传递nil
+     5. repeats：是否重复
+     */
+    self.counterLabel.text = @"2";
+    
+    // scheduledTimerWithTimeInterval 方法本质上就是创建一个时钟，
+    // 添加到运行循环的模式是DefaultRunLoopMode
+    // ----------------------------------------------
+    // 1>
+//    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:@"hello timer" repeats:YES];
+    
+    // ----------------------------------------------
+    // 2> 与1等价
+//    self.timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
+//    // 将timer添加到运行循环
+//    // 模式：默认的运行循环模式
+//    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+    
+    // ----------------------------------------------
+    // 3>
+    self.timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
+    // 将timer添加到运行循环
+    // 模式：NSRunLoopCommonModes的运行循环模式（监听滚动模式）
+    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+```
+在iOS程序中，每一个程序都是全屏的
+
+每个程序都以自己独立的运行循环，负责监听所有的事件！
+
+
+[btn addTarget:self action:@selector(click) event:]
+
+从代码上看，运行循环有两种模式：
+
+NSDefaultRunLoopMode
+NSRunLoopCommonModes(滚动)
+
+一旦发现有滚动事件，默认模式暂时不监听
+（看视频的PPT）
+
+13.
+**学习技巧：**
+关于tableview，如果要显示分组的效果，则进行下列设置：
+![这里写图片描述](http://img.blog.csdn.net/20150826150236201)
+plain：不显示分组，group：显示分组
+
+14.
+**学习技巧：**
+```
+_dataList = @[stu2, stu1];
+```
+如何理解？
+
+15.
+**学习技巧：** 关于tableview的简单实例：
+```
+#import "HMViewController.h"
+
+@interface HMViewController () <UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UITableView *tableView;
+@end
+
+@implementation HMViewController
+
+#pragma mark - 数据源方法
+// 如果没有实现，默认是1
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 2;
+}
+
+// 每个分组中的数据行总数
+// sction：分组的编号
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section == 0) {
+        // 第0个分组
+        return 5;
+    } else {
+        return 18;
+    }
+}
+
+// 告诉表格控件，每一行cell单元格的细节
+// indexPath
+//  @property(nonatomic,readonly) NSInteger section;    分组
+//  @property(nonatomic,readonly) NSInteger row;        行
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // 实例化TableViewCell时，使用initWithStyle方法来进行实例化
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    
+    cell.textLabel.text = [NSString stringWithFormat:@"黑马学员 %02ld 期 - %04ld", (long)indexPath.section, (long)indexPath.row];
+    
+    return cell;
+}
+
+// 返回分组的标题要显示的文字
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return [NSString stringWithFormat:@"黑马 %02ld 期", (long)section];
+}
+
+//返回分组页脚的文字
+- (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section
+{
+    if (section == 0) {
+        return @"太牛叉了";
+    } else {
+        return @"牛叉闪闪亮";
+    }
+}
+
+@end
+```
+
+16.
+**学习技巧：** 
+代理阶段性小结
+
+表格可以显示非常丰富的数据，为了达到这一效果，设置表格的"数据源"
+@required 	必须实现的方法
+@optional	可选的实现方法->不强求实现->如果实现了能得到特殊的效果，如果不实现，也不影响程序的正常运行
+	能够增加控件的灵活度
+	
+
+1. 遵守协议，预先定义好方法，不实现，具体的实现工作由代理负责
+<控件的名字+DataSource>		定义的与数据有关的方法
+<控件的名字+Delegate>			定义的与事件有关的方法，通常用来监听控件事件、控件的。
+
+2. 代理方法
+
+1>	方法名以控件名称开头(没有类前缀)	->	方便程序员编写的时候，快速找到需要的协议方法
+2>	第一个参数是自己				-> 	意味着在协议方法中，可以直接访问对象的属性，或者调用方法
+
+17.
+**学习技巧：** 
+导入素材进入Images.xcassets时，如果已经是文件夹，则应该在Finder上复制进去就可以，而不是通过Xcode移动进去；
+
+18.
+**学习技巧：** 
+代码块存放路径
+~/Library/Developer/Xcode/UserData/CodeSnippets
+**换新电脑，直接替换文件夹中的内容即可**
+
+19.
+**学习技巧：** 
+```
+#import "HMViewController.h"
+#import "HMHero.h"
+
+@interface HMViewController () <UITableViewDataSource, UITableViewDelegate>
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) NSArray *heros;
+@end
+
+@implementation HMViewController
+
+- (NSArray *)heros
+{
+    if (_heros == nil) _heros = [HMHero heros];
+    return _heros;
+}
+
+/**
+ UITableViewStylePlain,     // 平板的格式
+ UITableViewStyleGrouped    // 分组的格式
+ */
+- (UITableView *)tableView
+{
+    
+    if (_tableView == nil) {
+        // 表格控件在创建时必须指定样式，只能使用以下实例化方法，因为style为readonly的，所以只能制定一次，如果需要改变，则重新实例化一个类
+        _tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+        
+        _tableView.dataSource = self;
+        _tableView.delegate = self;
+        
+        [self.view addSubview:_tableView];//添加到视图
+    }
+    return _tableView;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self tableView];
+    
+    // 设置行高
+    self.tableView.rowHeight = 80;
+}
+
+#pragma mark - 数据源方法
+// 每个分组中的数据总数
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    NSLog(@"每个分组的数据总数 %d", self.heros.count);
+    
+    return self.heros.count;
+}
+
+/**
+ UITableViewCellStyleDefault,   默认类型 标题+可选图像
+ UITableViewCellStyleValue1,    标题+明细+图像
+ UITableViewCellStyleValue2,    不显示图像，标题+明细
+ UITableViewCellStyleSubtitle   标题+明细+图像（明细显示在第二行，小字）
+ */
+// 告诉表格每个单元格的明细信息
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"表格行明细 %d", indexPath.row);
+    
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
+    
+    // 取出英雄对象
+    HMHero *hero = self.heros[indexPath.row];
+    
+    // 标题
+    cell.textLabel.text = hero.name;
+    // 明细信息
+    cell.detailTextLabel.text = hero.intro;
+    // 图像
+    cell.imageView.image = [UIImage imageNamed:hero.icon];
+    
+    // 设置右边的箭头
+    // 1> UITableViewCellAccessoryDisclosureIndicator 箭头，可以"告诉"用户，当前行是可以点击的，通常选中行，会跳到新的页面，跟设置那里的箭头的功能是一样的
+    // 2> UITableViewCellAccessoryCheckmark 打钩，对号，通常提示用户该行数据设置完毕，使用的比较少
+    // 3> UITableViewCellAccessoryDetailButton 按钮，通常点击按钮可以做独立的操作，例如alertView
+    //    点击按钮并不会选中该行
+    // 4> UITableViewCellAccessoryDetailDisclosureButton 按钮+箭头，都可以点击
+//    cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+    
+    // 指定右侧的自定义视图
+    /**
+     通常accessoryType提供的类型不能满足时，才会使用自定义控件
+     
+     但是需要自行添加监听方法，通常用在自定义cell，不要写在视图控制器中！！！
+     
+     自定义控件的事件触发，同样不会影响表格行的选中！
+     */
+    UISwitch *switcher = [[UISwitch alloc] init];
+    // 添加监听方法
+    [switcher addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    cell.accessoryView = switcher;//通常用在自定义cell
+    
+    return cell;
+}
+
+- (void)switchChanged:(UISwitch *)sender
+{
+    NSLog(@"%s %@", __func__, sender);
+}
+
+#pragma mark - 代理方法
+// accessoryType为按钮时，点击右侧按钮的监听方法
+// 此方法不会触发行选中，跟行选中各自独立，行就是“>”
+// 只是为accessoryType服务，对自定义控件不响应,例如accessoryView的控件
+- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"%s %@", __func__, indexPath);
+}
+
+// 取消选中某一行，极少用，极容易出错！比如第一次选了第一行，然后第二次选了第二行，这是先调用第一行的didDeselectRowAtIndexPath，再调用第二行的didSelectRowAtIndexPath
+// didDeselectRowAtIndexPath
+// didSelectRowAtIndexPath
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"%s %@", __func__, indexPath);
+}
+
+// 如果选中了某一行，有箭头的
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSLog(@"%s %@", __func__, indexPath);
+}
+
+/**
+ 代理方法的优先级比rowHeight优先级高
+ 
+ 应用场景：很多应用程序，每一行的高度是不一样的，例如：新浪微博
+ 
+ 表格工作观察的小结
+ 
+ 1> 要知道总共有多少数据
+ - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+ 
+ 2> 计算“每一行”的行高
+ - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+ 
+ 问题：在此方法执行时，cell被实例化了吗？
+ 方法的作用是什么？
+ 
+ scrollView需要指定contentSize才能够滚动，如果没有实现方法，行高默认是44
+ 
+ 需要知道每一行的高度，才能够准确的计算出contentSize，计算一次就够了
+ 
+ 知道每一行的高度后，自然知道每一个屏幕应该显示多少行，表格明细方法的执行次数就知道了
+ 
+ 3> 表格明细
+ 调用屏幕显示所需要的行数，懒加载，只有要显示的表格行，才会被实例化！
+ 
+ 
+ 
+ 小的结论：
+ 
+ *  tableView.rowHeight：    效率高，适用于所有的表格行高度一致
+ *  代理方法指定行高：          效率差，适合于每一个行的行高不一样，能够让表格更加的灵活
+ 如果行高是一样的，就不要使用代理，因为会很影响性能
+ */
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+   NSLog(@"行高 %d", indexPath.row);
+//    
+    return (indexPath.row % 2) ? 60 : 44;
+    
+    // 以下代码可以使用rowHeight属性替换！
+//    return 60;
+}
+
+@end
+
+```
+
+20.
+**学习技巧：**
+cell重用技巧：
+```
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // 1.定义一个cell的标识，可以区分不同类型的cell
+    //定义为静态变量，能够保证系统为变量在内存中只分配一次内存空间
+      static NSString *ID = @"mjcell";
+    
+    // 2.从缓存池中取出cell
+      UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    
+    // 3.如果缓存池中没有cell
+      if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:ID];
+    }
+    
+    // 4.设置cell的属性...
+    
+      return cell;
+}
+```
+
+21.
+**学习技巧：**
+```
+    // 设置分隔线的样式，跟设置里面一样的分隔线
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    /**
+     32位真彩色 ARGB 2^8 * 2^8 * 2^8 * 2^8 = 2^32 = 2^2 * 2^10 * 2^10 * 2^10  = 4G
+     2^64 = 16 GG
+     
+     A = Alpha
+     R
+     G
+     B
+     24位真彩色 RGB 2^8 * 2^8 * 2^8 = 2 ^ 24 = 2^4 * 2^10 = 16 * 100万
+     R = Red     1个字节  8位 0~255
+     G = Green
+     B = Blun
+     
+     # ff ff ff ff
+     */
+    //指定颜色
+    self.tableView.separatorColor = [UIColor colorWithWhite:0.0 alpha:0.2];//alpha不是透明度？
+    
+    //下面两个属性是跟分组数没有关系的！
+    // headView，放在tableView最顶部的视图，通常用来放图片轮播器，广告
+    UIView *head = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 130)];
+    head.backgroundColor = [UIColor blueColor];
+    self.tableView.tableHeaderView = head;
+    
+    // footerView，通常做上拉刷新
+    UIView *foot = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    foot.backgroundColor = [UIColor redColor];
+    self.tableView.tableFooterView = foot;
+```
+
+22.
+**学习技巧：**
+nslog的打印格式：
+![这里写图片描述](http://img.blog.csdn.net/20150826191708880)
+
+23.
+**学习技巧：**
+在Xcode中添加文件夹以区分不同的类：
+选择New Group from Selection
+![这里写图片描述](http://img.blog.csdn.net/20150826202025022)
+
+24.
+**学习技巧：**
+对于风火轮，第一个是让他转，第二个是停止的时候让它消失
+![这里写图片描述](http://img.blog.csdn.net/20150826203304642)
+
+25.
+**学习技巧：**
+```
+// 代理如果使用强引用，就会产生循环引用，造成控制器和子视图都无法被释放，造成内存泄露
+@property (nonatomic, weak) id <HMTgFooterViewDelegate> delegate;
+```
+
+
+26.
+**学习技巧：**
+ 预处理指令
+ #if 0
+ 所有代码都不会执行
+ 
+ #endif
+ 
+ 27.
+ **学习技巧：**
+ 做分隔线，则可以用view来弄，设置高度为1；
+
+28.
+ **学习技巧：**
+代理模式：是父控件(视图控制器)监听子控件的事件，当子控件发生某些事情时，通知父控件工作！
+
+*	footView => controller 去工作，使用代理
+*	controller => footView 去工作，直接调用footView的方法即可
+
+
+2015.08.27
+1.
+ **学习技巧：**
+ 设置UINavigationBar的title和UITabBarController下面item的文字为不同的标题
+
+当一个视图控制器是UINavigationController的当前控制器时，如果设置了self.title属性，那么当前视图的navigationBar的title就是会自动取self.title的值。如果当前视图控制器还在tabBarController中，那么下面item的title也会取self.title，如果想要bar上面的文字和item的文字不一样，那么需要单独的对bar上面的文字设定，即除了设置self.title 意外还要在设置self.navigationItem.title的值，来吧bar上面的标题改回来，还可以单独设置item上的文字，self.navigationController.tabbarItem.title对该属性修改即可。
+
+
+**参考网址：**http://www.cnblogs.com/madpanda/p/4656392.html
+
+2015.08.28
+1.
+**学习技巧：** 关于NSBundle类
+获取app包的readme.txt文件路径
+```
+NSString *path = [[NSBundle mainBundle] pathForResource:@"readme" ofType:@"txt"];
+```
+**参考网址：**http://ship2013.blog.163.com/blog/static/228611067201310281336641/
+
+
+2.
+**出现问题：**在api中经常看到这样的方法，一个 ＋ 函数初始化，一个 - 初始化。 
+在项目中使用[NSMutableArray array]，在没有主动申请释放的时候就别释放了。 
+只有retain后正常使用。 
+[NSMutableArray array]和[[NSMutableArray alloc] init]区别难道只是没有retain引用，另一个retain引用？甚感疑惑 
+
+这两者主要用途的区别又是什么，难道只是兼容obj-c 2.0的@property (retain),望指教。 
+
+**解决方法：**
+[NSMutableArray array]相当于[[[NSMutableArray alloc] init] autorelease]; 
+区别就是一个是autorelease一个需要你去release。 
+autorelease的对象有时候会在你不用的时候已经release了，而过后你又想用到，所以要retain一次。
+
+**提出问题：**
+那如果在ARC下呢？是不是还是一样的？
+
+**参考网址：**http://stackoverflow.com/questions/8557190/nsmutablearray-alloc-init-vs-nsmutablearray-array
+
+3.
+**学习技巧：**
+ios view的frame和bounds之区别（位置和大小）
+> frame: 该view在父view坐标系统中的位置和大小。（参照点是，父亲的坐标系统）
+       bounds：该view在本地坐标系统中的位置和大小。（参照点是，本地坐标系统，就相当于ViewB自己的坐标系统，以0,0点为起点）
+
+**参考网址：**
+http://www.jcodecraeer.com/IOS/2015/0207/2427.html
+
+4.
+**学习技巧：** 
+关于背景：
+```
+        // 背景颜色，只会影响到未选中表格行的标签背景，被选中的表格行是没有背景颜色的
+//        cell.backgroundColor = [UIColor redColor];
+       
+        // 在实际开发中，使用背景视图的情况比较多
+        // 背景视图，不需要指定大小，cell会根据自身的尺寸，自动填充调整背景视图的显示
+        // 没有选中的背景颜色
+        //代码形式1
+//        UIImage *bgImage = [UIImage imageNamed:@"img_01"];
+//        cell.backgroundView = [[UIImageView alloc] initWithImage:bgImage];
+        //代码形式2
+//        UIView *bgView = [[UIView alloc] init];
+//        bgView.backgroundColor = [UIColor yellowColor];
+//        cell.backgroundView = bgView;
+        
+        
+        // 选中的背景视图
+//        UIImage *selectedBGImage = [UIImage imageNamed:@"img_02"];
+//        cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:selectedBGImage];
+```
+
+5.
+**学习技巧：**
+修改NSLog和%@的默认输出：重写类对象或者实例对象的description方法即可。因为NSLog函数进行打印的时候会自动调用description方法
+**参考网址：**
+http://www.cnblogs.com/QM80/p/3587064.html
+
+6.
+**学习技巧：**
+05-汽车品牌代码学习：
+```
+//
+//  HMViewController.m
+//  05-汽车品牌
+//
+//  Created by apple on 14-8-19.
+//  Copyright (c) 2014年 itcast. All rights reserved.
+//
+
+#import "HMViewController.h"
+#import "HMCarGroup.h"
+#import "HMCar.h"
+
+@interface HMViewController () <UITableViewDataSource>
+@property (nonatomic, strong) NSArray *carGroups;
+@property (nonatomic, strong) UITableView *tableView;
+@end
+
+@implementation HMViewController
+
+- (UITableView *)tableView
+{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+        _tableView.dataSource = self;
+        
+        [self.view addSubview:_tableView];
+    }
+    return _tableView;
+}
+
+- (NSArray *)carGroups
+{
+    if (_carGroups == nil) {
+        _carGroups = [HMCarGroup carGroups];
+    }
+    return _carGroups;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    // 调用tableView添加到视图
+    [self tableView];
+}
+
+#pragma mark - 数据源方法
+// 分组总数
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return self.carGroups.count;
+}
+
+// 每一组的总数
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    HMCarGroup *group = self.carGroups[section];
+    
+    return group.cars.count;
+}
+
+// 单元格
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // 可重用标示符
+    static NSString *ID = @"Cell";
+    
+    // 让表格缓冲区查找可重用cell
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    
+    // 如果没有找到可重用cell
+    if (cell == nil) {
+        // 实例化cell
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+    }
+    
+    // 设置cell内容
+    // 1> 取出数据模型
+    HMCarGroup *group = self.carGroups[indexPath.section];
+    HMCar *car = group.cars[indexPath.row];
+    
+    // 2> 设置数据
+    cell.imageView.image = [UIImage imageNamed:car.icon];
+    cell.textLabel.text = car.name;
+    
+    return cell;
+}
+
+// 标题,只有在plain模式的tableView才有效
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    // 找到group
+    HMCarGroup *group = self.carGroups[section];
+    
+    return group.title;
+}
+
+// 右侧索引列表
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    // 索引数组中的"内容"，跟分组无关
+    // 索引数组中的下标，对应的是分组的下标
+//    return @[@"哇哈哈", @"hello", @"哇哈哈", @"hello", @"哇哈哈", @"hello", @"哇哈哈", @"hello"];
+    
+    // 返回self.carGroup中title的数组
+//    NSMutableArray *arrayM = [NSMutableArray array];
+//    for (HMCarGroup *group in self.carGroups) {
+//        [arrayM addObject:group.title];
+//    }
+//    return arrayM;
+    
+    // KVC是cocoa的大招
+    // 用来间接获取或者修改对象属性的方式
+    // 使用KVC在获取数值时，如果指定对象不包含keyPath的"键名"，会自动进入对象的内部查找
+    // 如果取值的对象是一个数组，同样返回一个数组，下面两句只是打印测试
+    NSArray *array = [self.carGroups valueForKeyPath:@"cars.name"];
+    NSLog(@"%@", array);
+    
+    return [self.carGroups valueForKeyPath:@"title"];
+}
+
+@end
+
+```
+
+
+2015.08.30
+1.
+**学习技巧：**
+关于字典转模型：
+![这里写图片描述](http://img.blog.csdn.net/20150830092243431)
+写的模型代码如下：
+```
+//
+//  HMCar.h
+//  05-汽车品牌
+//
+//  Created by apple on 14-8-19.
+//  Copyright (c) 2014年 itcast. All rights reserved.
+//
+#import <Foundation/Foundation.h>
+
+@interface HMCar : NSObject
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *icon;
+
+- (instancetype)initWithDict:(NSDictionary *)dict;
++ (instancetype)carWithDict:(NSDictionary *)dict;
+
+// 传入一个包含字典的数组，返回一个HMCar模型的数组
++ (NSArray *)carsWithArray:(NSArray *)array;
+
+@end
+
+```
+
+HMCar.m文件：
+```
+//
+//  HMCar.m
+//  05-汽车品牌
+//
+//  Created by apple on 14-8-19.
+//  Copyright (c) 2014年 itcast. All rights reserved.
+//
+
+#import "HMCar.h"
+
+@implementation HMCar
+
+- (instancetype)initWithDict:(NSDictionary *)dict
+{
+    self = [super init];
+    if (self) {
+        [self setValuesForKeysWithDictionary:dict];
+    }
+    return self;
+}
+
++ (instancetype)carWithDict:(NSDictionary *)dict
+{
+    return [[self alloc] initWithDict:dict];
+}
+
++ (NSArray *)carsWithArray:(NSArray *)array
+{
+    NSMutableArray *arrayM = [NSMutableArray array];
+    for (NSDictionary *dict in array) {
+        [arrayM addObject:[self carWithDict:dict]];
+    }
+    
+    return arrayM;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@: %p> {name: %@, icon: %@}", self.class, self,self.name, self.icon];
+}
+
+@end
+
+```
+
+HMCarGroup.h文件
+```
+//
+//  HMCarGroup.h
+//  05-汽车品牌
+//
+//  Created by apple on 14-8-19.
+//  Copyright (c) 2014年 itcast. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface HMCarGroup : NSObject
+/** 首字母 */
+@property (nonatomic, copy) NSString *title;
+/** 车的数组，存放的是HMCar的模型数据 */
+@property (nonatomic, strong) NSArray *cars;
+
+- (instancetype)initWithDict:(NSDictionary *)dict;
++ (instancetype)carGroupWithDict:(NSDictionary *)dict;
+
++ (NSArray *)carGroups;
+
+@end
+
+```
+
+HMCarGroup.m文件：
+```
+//
+//  HMCarGroup.m
+//  05-汽车品牌
+//
+//  Created by apple on 14-8-19.
+//  Copyright (c) 2014年 itcast. All rights reserved.
+//
+
+#import "HMCarGroup.h"
+#import "HMCar.h"
+
+@implementation HMCarGroup
+
+- (instancetype)initWithDict:(NSDictionary *)dict
+{
+    self = [super init];
+    if (self) {
+//        [self setValuesForKeysWithDictionary:dict];
+        [self setValue:dict[@"title"] forKey:@"title"];
+        
+        // dict[@"cars"]存放的是字典的数组
+        // 希望将字典的数组转换成HMCar模型的数组
+//        [self setValue:dict[@"cars"] forKey:@"cars"];
+        self.cars = [HMCar carsWithArray:dict[@"cars"]];
+    }
+    return self;
+}
+
++ (instancetype)carGroupWithDict:(NSDictionary *)dict
+{
+    return [[self alloc] initWithDict:dict];
+}
+
++ (NSArray *)carGroups
+{
+    
+    //从filePath 这个指定的文件里读
+    //NSString *path = [[NSBundle mainBundle] pathForResource:@"readme" ofType:@"txt"];//获取app包的readme.txt文件路径
+    NSArray *array = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"cars_total.plist" ofType:nil]];
+    
+    NSMutableArray *arrayM = [NSMutableArray array];
+    for (NSDictionary *dict in array) {
+        [arrayM addObject:[self carGroupWithDict:dict]];
+    }
+    
+    return arrayM;
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"<%@: %p> {title: %@, cars: %@}", self.class, self, self.title, self.cars];
+}
+
+@end
+
+```
+
+这样，就完成了一个字典转模型的功能，具体的使用参照上一天的记录；
+
+2.
+**学习技巧：**
+instancetype只能用于返回值使用！！！不能当做参数使用；
+
+3.
+**学习技巧：**
+```
++ (NSArray *)appList
+{
+    NSArray *array = [NSArray arrayWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"app.plist" ofType:nil]];
+    
+    // 创建一个临时数组
+    NSMutableArray *arrayM = [NSMutableArray array];
+    
+    // 遍历数组，依次转换模型
+    for (NSDictionary *dict in array) {
+        [arrayM addObject:[HMAppInfo appInfoWithDict:dict]];
+    }
+    
+    return arrayM;
+}
+```
+
+4.
+**学习技巧:**
+关于要实现关于通信录的功能：
+```
+//
+//  HMViewController.m
+//  06-表格的修改
+//
+//  Created by apple on 14-8-19.
+//  Copyright (c) 2014年 itcast. All rights reserved.
+//
+
+#import "HMViewController.h"
+
+@interface HMViewController () <UITableViewDataSource, UITableViewDelegate>
+/** 数据列表 */
+@property (nonatomic, strong) NSMutableArray *dataList;
+@property (nonatomic, strong) UITableView *tableView;
+@end
+
+@implementation HMViewController
+
+- (UITableView *)tableView
+{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+        
+        _tableView.dataSource = self;
+        _tableView.delegate = self;
+        
+        [self.view addSubview:_tableView];
+    }
+    return _tableView;
+}
+
+- (NSMutableArray *)dataList
+{
+    if (_dataList == nil) {
+        _dataList = [NSMutableArray arrayWithObjects:@"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwu", @"zhangsan", @"lisi", @"wangwuwangwuwangwuwangwuwangwu", nil];
+    }
+    return _dataList;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self tableView];
+
+    // 开始编辑，一旦editing == YES就默认开启删除模式,左边出现红色的删除按钮
+    self.tableView.editing = YES;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return self.dataList.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString *ID = @"Cell";
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+    }
+    
+    // 设置表格
+    cell.textLabel.text = self.dataList[indexPath.row];
+    
+    return cell;
+}
+
+// 只要实现了此方法，就能够支持手势拖拽删除了(只是显示，但此时并不能做删除操作)，删除需要自己干！
+/**
+ UITableViewCellEditingStyleNone,
+ UITableViewCellEditingStyleDelete,     删除
+ UITableViewCellEditingStyleInsert      添加
+ */
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        NSLog(@"要删除");
+        
+        // MVC => 数据是保存在模型中
+        // 1. 删除self.dataList中indexPath对应的数据
+        [self.dataList removeObjectAtIndex:indexPath.row];
+        NSLog(@"%@", self.dataList);
+        
+        // 2. 刷新表格(重新加载数据)
+        // 重新加载所有数据,但不建议使用
+//        [self.tableView reloadData];
+        // deleteRowsAtIndexPaths让表格控件动画删除指定的行
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationMiddle];
+    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        NSLog(@"要添加数据");
+        
+        // 1. 向数组添加数据
+        [self.dataList insertObject:@"王小二" atIndex:indexPath.row + 1];//+1是为了在下面一行添加
+
+        // 2. 刷新表格
+//        [self.tableView reloadData];
+        // insertRowsAtIndexPaths让表格控件动画在指定indexPath添加指定行
+        // 新建一个indexPath
+        NSIndexPath *path = [NSIndexPath indexPathForRow:indexPath.row + 1 inSection:indexPath.section];//+1是为了显示在下面一行
+ 
+        [self.tableView insertRowsAtIndexPaths:@[path] withRowAnimation:UITableViewRowAnimationMiddle];
+    }
+}
+
+// 只要实现此方法，就可以显示拖动控件,如果没有写里面的方法，则只是界面更新，但是数据并未更新
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath
+{
+    // 界面数据UITableView已经完成了
+    // 调整数据即可,但是以下这个方法是交换，不能够实现插入操作
+//    [self.dataList exchangeObjectAtIndex:sourceIndexPath.row withObjectAtIndex:destinationIndexPath.row];
+    // 1. 将源从数组中取出
+    id source = self.dataList[sourceIndexPath.row];
+    // 2. 将源从数组中删除
+    [self.dataList removeObjectAtIndex:sourceIndexPath.row];
+    NSLog(@"%@", self.dataList);
+    
+    // 3. 将源插入到数组中的目标位置
+    [self.dataList insertObject:source atIndex:destinationIndexPath.row];
+    
+    NSLog(@"%@", self.dataList);
+}
+
+#pragma mark - 代理方法
+// 返回编辑样式，如果没有实现此方法，默认都是删除
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+//    if (indexPath.row % 2) {
+//        return UITableViewCellEditingStyleInsert;
+//    } else {
+//        return UITableViewCellEditingStyleDelete;
+//    }
+    return UITableViewCellEditingStyleInsert;
+}
+
+@end
+
+```
+
+7.
+**学习技巧：**
+类名的首字母要大写，方法名首字母要小些；
+
+8.
+**学习技巧：**
+对于自动以xib，如果使用mvc的模式去思考，则视图控制器是不需要了解xib里面的细节，所以参考02-团购的代码；
+
+9.
+**学习技巧：**
+新建xib时，如果拖入UiView控件，一开始发现并不能够改变它的大小，所以需要设置以下：
+![这里写图片描述](http://img.blog.csdn.net/20150830114038335)
+才能继续设置大小；
+
+10.
+**学习技巧：**
+关于延时：
+```
+延迟执行（掌握）
+1> perform....
+// 3秒后自动回到当前线程调用self的download:方法，并且传递参数：@"http://555.jpg"
+[self performSelector:@selector(download:) withObject:@"http://555.jpg" afterDelay:3];
+
+2> dispatch_after...
+// 任务放到哪个队列中执行
+dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+double delay = 3; // 延迟多少秒
+dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), queue, ^{
+    // 3秒后需要执行的任务
+});
+
+```
+
+11.
+**学习技巧：**
+```
+// 代理如果使用强引用，就会产生循环引用，造成控制器和子视图都无法被释放，造成内存泄露
+@property (nonatomic, weak) id <HMTgFooterViewDelegate> delegate;
+```
+
+12.
+**学习技巧：**
+通过预处理指令来注释或者打开一个代码块
+```
+/** 
+ 预处理指令
+ #if 0
+ 所有代码都不会执行
+ 
+ #endif
+ */
+ ```
+13.
+**学习技巧：**
+制作分隔线：
+用uiView来做，调整高度为1，**调整背景颜色为灰色**；
+
+14.
+**学习技巧：**
+在字典转模型的时候，模型里面的变量可以比文件里面的变量多，但是文件里的变量不能比模型里面的变量多，否则会报错；
+
+15.
+**学习技巧：**
+>一旦重写了readonly属性的getter方法，_的成员变量就不存在了 
+ 如果写了getter方法，此时还需要使用_成员变量，则需要使用@synthesize生成对应的成员变量
+16.
+**学习技巧：**
+>     在Storyboard中指定了可重用标示符，同时指定了Cell的类是HMStatusCell
+     
+>     系统会为tableView注册一个原形Cell，专门用来做可重用单元格的，一旦缓冲区中不存在
+     可重用单元格，系统会使用原形Cell新实例化一个Cell用程序使用！
+     
+  >   因此如果在，Storyboard中，注册了原形Cell，就不再需要 cell == nil的判断了,也不需要init；
+
+17.
+**学习技巧：**
+xib做不了tableview的嵌套，storyboard可以；
+
+18.
