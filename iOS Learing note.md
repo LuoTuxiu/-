@@ -769,7 +769,7 @@ delloc可以重写，**但是在ARC下不需要使用[super dealloc];**
 17.
 **学习技巧：**
 >预处理器在C/C++/Objective-C语言中提供的宏
-*   __func__%s 当前函数签名，就是当前函数名
+*   __func__%s 当前函数签名，就是当前函数名,获取当前方法在哪个类中调用；
 *   __LINE__ %d 在源代码文件中当前所在行数
 *   __FILE__ %s 当前源代码文件全路径
 *   __PRETTY_FUNCTION__ %s 像 __func__，但是包含了C++代码中的隐形类型信息。
@@ -812,7 +812,7 @@ delloc可以重写，**但是在ARC下不需要使用[super dealloc];**
 //        [self.view endEditing:YES];
         // 让密码文本框关闭键盘
 //        [textField resignFirstResponder];
-        [self.pwdText resignFirstResponder];//撤销密码框成为第一响应者
+        [self.pwdText resignFirstResponder];//撤销密码框成为第一响应者，这样就能够让键盘消失
     }
     
     return YES;
@@ -2093,14 +2093,16 @@ dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC))
 **学习技巧：**
 通过预处理指令来注释或者打开一个代码块
 ```
-/** 
+
  预处理指令
  #if 0
  所有代码都不会执行
  
  #endif
- */
- ```
+ 
+```
+
+
 13.
 **学习技巧：**
 制作分隔线：
@@ -2139,24 +2141,883 @@ xib做不了tableview的嵌套，storyboard可以；
 
 ![这里写图片描述](http://www.cleey.com/Public/image/blog/20150811143803_55c9984b59fa4.jpg)
 
-（2）
+2.
 **学习技巧：**
 // 在堆中所有的变量类型都是匿名访问的
 // 所有堆中的变量都是通过指针来访问的
 
-（3）
+3.
 **学习技巧：**
 如果是可变的，则在后面名字写M，以区分可变与不可变，如：
 NSMutableArray *arrayM;
 Array *array;
 （3）
 **学习技巧：**
+（1）关于copy， 
+**浅复制：不可变=>不可变**
+深复制：其他三种情况
+>浅复制：在执行复制操作时，对于对象中每一层（对象中包含的对象，例如说属性是某个对象类型）复制都是指针复制（如果从引用计数器角度出发，那么每层对象的引用计数器都会加1）。
+深复制：在执行复制操作时，至少有一个对象的复制是对象内容复制（如果从引用计数器角度出发，那么除了对象内容复制的那个对象的引用计数器不变，其他指针复制的对象其引用计数器都会加1）。
 
-（3）
+实际上，这样子记，浅复制，两者的指针是一样的，只是计数加1；
+深复制，两者地址不一样了，这样副本就可以被修改了，实现copy；
+（2）
+
+// *** 对于"可变类型"的属性，不要使用copy描述符定义，否则赋值后，就是不可变了！否则会出现问题：
+ Attempt to mutate immutable object with xxx
+ 试图修改一个不可变的类型，使用方法xxx
+
+//源代码：
+//@property (nonatomic, copy) NSMutableString *name;
+
+4.
+**学习技巧：**
+关于自定义对象要实现copy功能
+```
+void copyDemo5()
+{
+    Person *p = [[Person alloc] init];
+    p.name = @"zhangsan";
+    p.age = 18;
+    
+    NSLog(@"%@", p);
+    
+    Person *p1 = [p copy];
+    p1.name = @"lisi";
+    NSLog(@"%@", p1);
+}
+
+```
+**上面的copy会自动调用下面的copyWithZone**
+```
+#import "Person.h"
+
+/**
+ 自定义对象要实现copy功能
+ 1> 遵守NSCopying协议，本质上就是方便程序员编写代码时候，有快捷提示
+ 2> 实现- (id)copyWithZone:(NSZone *)zone
+ */
+@implementation Person
+
+// zone，区域，极少用，用来管理和减少内存碎片
+// 所有的copy（包括nutable）方法，最终都会调用copyWithZone
+// copy操作将一个对象，复制(当前对象的属性)给一个新的对象
+- (id)copyWithZone:(NSZone *)zone
+{
+    // 1> 实例化对象，self 是对象
+    // self.class能够保证继承的子类同样使用copy方法
+    Person *p = [[self.class alloc] init];
+    
+    // 2> 给属性赋值
+    p.name = self.name;
+    p.age = self.age;
+    
+    // 3> 返回新对象
+    return p;
+}
+```
+
+一个对象究竟是什么类型，只跟alloc那时候有关，所以
+```
+      Student *p = [[Student alloc] init];
+        p.name = @"zhangsan";
+        p.age = 18;
+        p.no = @"0001";
+        
+        NSLog(@"%@, %@", p, p.no);
+        
+        Person *p1 = [p copy];
+        p1.name = @"lisi";
+        //NSLog(@"%@ %@", p1, p1.no);
+```
+
+p1并不一定就是person类型，因为在[p copy]语句中，p调用copy，返回的不一定是Person类型；参考02-copy
+
+2015.08.31
+1.
+**学习技巧：**
+苹果常见尺寸：
+4寸屏幕大小：高568，
+44
+
+2.
+**学习技巧：**
+用下面的写法就不会因为self.time是弱引用而被删除掉了；
+```
+        UILabel *time = [[UILabel alloc]init];
+        [self.contentView addSubview:time];
+        self.time = time;
+```
+
+
+3.
+**学习技巧：**
+带边框的UIImage缩放
+**参考网址：**http://onevcat.com/2011/12/uiimage/
+
+4.
+**学习技巧：**
+```
+//返回一个可拉伸的图片
+- (UIImage *)resizeWithImageName:(NSString *)name
+{
+//返回一个可拉伸的图片
+- (UIImage *)resizeWithImageName:(NSString *)name
+{
+    UIImage *normal = [UIImage imageNamed:name];
+    
+//    CGFloat w = normal.size.width * 0.5f ;
+//    CGFloat h = normal.size.height *0.5f ;
+    
+    CGFloat w = normal.size.width*0.8;
+    CGFloat h = normal.size.height*0.8;
+    //传入上下左右不需要拉升的编剧，只拉伸中间部分
+    return [normal resizableImageWithCapInsets:UIEdgeInsetsMake(h, w, h, w)];
+    
+//    [normal resizableImageWithCapInsets:UIEdgeInsetsMake(<#CGFloat top#>, <#CGFloat left#>, <#CGFloat bottom#>, <#CGFloat right#>)]
+    
+    // 1 = width - leftCapWidth  - right
+    // 1 = height - topCapHeight  - bottom
+    
+    //传入上下左右不需要拉升的编剧，只拉伸中间部分，并且传入模式（平铺/拉伸）
+//    [normal :<#(UIEdgeInsets)#> resizingMode:<#(UIImageResizingMode)#>]
+}
+```
+
+**参考网址：**http://blog.csdn.net/chaoyuan899/article/details/19811889
+
+4.
+**学习技巧：**
+新建分类：
+点击iOS，点击Objective-C File文件，点击Categoy，即是建立分类文件
+作用是扩充类的函数方法；
+
+5.
+**学习技巧：**
+监听的时候的userInfo的写法：(04天-05通知)
+```
+ [center postNotificationName:@"zhenaiwang"
+                              object:za
+                            userInfo:@{@"title":@"新来了一批美女",
+                                       @"info":@"........."}];
+```
+
+观察者调用的方法：(字典)
+```
+ NSLog(@"%@ %@：%@",self.name,noti.name,noti.userInfo[@"title"]);
+```
+
+6.
+**学习技巧：**
+UIDevice类提供了一个单粒对象，它代表着设备，通过它可以获得一些设备相关的信息，比如电池电量值(batteryLevel)、电池状态(batteryState)、设备的类型(model，比如iPod、iPhone等)、设备的系统(systemVersion)
+
+通过[UIDevice currentDevice]可以获取这个单粒对象
+
+UIDevice对象会不间断地发布一些通知，下列是UIDevice对象所发布通知的名称常量：
+UIDeviceOrientationDidChangeNotification // 设备旋转
+UIDeviceBatteryStateDidChangeNotification // 电池状态改变
+UIDeviceBatteryLevelDidChangeNotification // 电池电量改变
+UIDeviceProximityStateDidChangeNotification // 近距离传感器(比如设备贴近了使用者的脸部)
+
+关于键盘通知：
+我们经常需要在键盘弹出或者隐藏的时候做一些特定的操作,因此需要监听键盘的状态
+
+键盘状态改变的时候,系统会发出一些特定的通知
+UIKeyboardWillShowNotification // 键盘即将显示
+UIKeyboardDidShowNotification // 键盘显示完毕
+UIKeyboardWillHideNotification // 键盘即将隐藏
+UIKeyboardDidHideNotification // 键盘隐藏完毕
+UIKeyboardWillChangeFrameNotification // 键盘的位置尺寸即将发生改变
+**UIKeyboardDidChangeFrameNotification // 键盘的位置尺寸改变完毕**
+
+7.
+**学习技巧：**
+```
+//    UIKeyboardAnimationCurveUserInfoKey = 7;  动画曲线动画
+//    UIKeyboardAnimationDurationUserInfoKey = "0.25"; 动画时间
+//    UIKeyboardBoundsUserInfoKey = "NSRect: {{0, 0}, {320, 216}}"; 键盘bounds
+//    UIKeyboardCenterBeginUserInfoKey = "NSPoint: {160, 588}";  开始键盘的居中位置
+//    UIKeyboardCenterEndUserInfoKey = "NSPoint: {160, 372}";结束键盘的居中位置
+//    UIKeyboardFrameBeginUserInfoKey = "NSRect: {{0, 480}, {320, 216}}"; 键盘开始弹出的frame
+//    UIKeyboardFrameChangedByUserInteraction = 0;   键盘改变frame
+//    UIKeyboardFrameEndUserInfoKey = "NSRect: {{0, 264}, {320, 216}}"; 退出键盘的frame
+
+//    UIKeyboardAnimationCurveUserInfoKey = 7;
+//    UIKeyboardAnimationDurationUserInfoKey = "0.25";
+//    UIKeyboardBoundsUserInfoKey = "NSRect: {{0, 0}, {320, 216}}";
+//    UIKeyboardCenterBeginUserInfoKey = "NSPoint: {160, 372}";
+//    UIKeyboardCenterEndUserInfoKey = "NSPoint: {160, 588}";
+//    UIKeyboardFrameBeginUserInfoKey = "NSRect: {{0, 264}, {320, 216}}";
+//    UIKeyboardFrameChangedByUserInteraction = 0;
+//    UIKeyboardFrameEndUserInfoKey = "NSRect: {{0, 480}, {320, 216}}";
+```
+
+8.
+**学习技巧：**
+控制器的view是在根的window上的
+
+9.
+**学习技巧：**
+文本框中那个删除键其实是个rightView，关于模式就是leftViewMode，如下，UITextField.h定义：
+```
+@property(nullable, nonatomic,strong) UIView              *leftView;        // e.g. magnifying glass
+@property(nonatomic)        UITextFieldViewMode  leftViewMode;    // sets when the left view shows up. default is UITextFieldViewModeNever
+
+@property(nullable, nonatomic,strong) UIView              *rightView;     
+```
+
+10.
+**学习技巧：**
+当UITextField中内容为空时，软键盘中的Search按钮是灰色不可点击状态。
+
+UITextField内容不为空时，软键盘中的Search按钮可以点击
+![这里写图片描述](http://img.blog.csdn.net/20150901170058983)
+
+11.
+**学习技巧：**
+用静态单元格，选择tableview 改属性content为static，先写一个cell，然后改row或者session，这样可以统一，然后依次往后做，只适用于不需要修改界面，但是实际开发最好不要用，因为以后更新还是需要代码；
+
+12.
+**学习技巧：**
+在xcode上直接拖动文件夹并不能够改变在finder中的位置，我们必须删除掉Xcode中的引用，重新在finder新建文件夹，拖好文件后，再从Xcode导入该文件，并且做好在Xcode和finder两端都确认，当确认无误后，方可以继续；
+
+2015.09.03
+1.
+**学习技巧：**
+对于block变量，可以使用copy，strong属性，但是视频中推荐使用copy属性；
+
+2.
+**学习技巧：**
+view传递数据或者通知控制器，可以使用三种方法：
+（1）block；
+（2）代理；
+（3）通知；
+
+2015.09.04
+1.
+**学习技巧：**
+直接拖动那个tableViewController时，本身就有个cell，只有在选择cell的类型为custom自定义类型时才能自己拉控件；
+
+2.
+**学习技巧：**
+关于重用默认的cell。
+（1）需要指定cell的ID，然后编程的时候直接制定ID为该ID，就不需要alloc了；
+因为：程序启动的时候，会先去storyboard找有没有默认的cell，如果有的话就不需要程序猿初始化了，如果没有的话需要程序猿自己初始化；
+（2）在重用cell的时候，应该改变cell上的所有控件的状态，不然的话有可能其它控件会有意外地状态；
+
+3.
+**学习技巧：**
+协议的方法名是以类名开头的，这样子别人使用我的类的时候就可以知道是用了哪个代理；
+
+4.
+**学习技巧：**
+```
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *ID=@"contact";
+    
+    //这句话forIndexPath:indexPath代表从storyboard加载cell，就不执行alloc这句话了，但是我们并没有cell在storyboard，所以应该去掉这句话
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    
+    // Configure the cell...
+    if (cell ==nil) {
+        cell =[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:ID];
+        
+    }
+    
+    contact *givecontact = self.contacts[indexPath.row];
+    //给cell里面的控件赋值
+    cell.textLabel.text=givecontact.name;
+    cell.detailTextLabel.text=givecontact.phone;
+    return cell;
+}
+```
+
+2015.09.06
+1.
+**学习技巧：**
+NSTemporaryDirectory()，可获取到tmp文件夹；
+
+2.
+**学习技巧：**
+获取到导航栏的按钮：
+```
+    UIBarButtonItem *add = self.navigationItem.rightBarButtonItem;
+
+```
+
+3.
+**学习技巧：**
+关于滑动出删除菜单以及编辑tableview的编辑样式：
+```
+//当提交一个操作时就会调用这个函数，实现往左划即出现删除菜单
+//tableView的代理方法
+-(void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+            [self.contacts removeObjectAtIndex:indexPath.row];
+            [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    }
+    
+//    [self.tableView reloadData];
+    //前提是tableview中cell总数和模型中数据总数一样
+    else
+    {
+        contact *newcontact  = [contact contactWithName:@"grace" phone:@"123"];
+//        [self.contacts addObject:newcontact];
+        [self.contacts insertObject:newcontact atIndex:indexPath.row+1];
+//        [self.tableView reloadData];
+        NSIndexPath *nextIndexPath = [NSIndexPath indexPathForRow:indexPath.row+1 inSection:0];
+        [self.tableView insertRowsAtIndexPaths:@[nextIndexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    }
+}
+
+
+
+/**
+ *  //当tableView进入编辑模式前调用该方法；
+ *
+ *  @param tableView tableView description
+ *  @param indexPath indexPath description
+ *
+ *  @return 返回每一行的编辑样式
+ */
+-(UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row == 0) {
+        return UITableViewCellEditingStyleInsert;
+    }
+    return UITableViewCellEditingStyleDelete;
+}
+```
+
+4.
+**学习技巧：**
+![这里写图片描述](http://img.blog.csdn.net/20150906173745335)
+![这里写图片描述](http://img.blog.csdn.net/20150906173756840)
+
+
+5.
+**学习技巧：**
+（1）在tabBar中，子视图控制器是不能够tabBarButton的属性的，只有在tabBarController中才能获取；
+（2）在tabBar中，不同视图的切换是不会销毁视图的，所以，
+不同视图的切换顺序如下：
+首先，开第一个视图：
+![这里写图片描述](http://img.blog.csdn.net/20150906175804747)
+接着，切换到第二个视图：
+![这里写图片描述](http://img.blog.csdn.net/20150906175837827)
+接着，回到原来的视图：
+![这里写图片描述](http://img.blog.csdn.net/20150906175914965)
+注意，回传到原来的视图的时候并不会调用viewDidLoad了；
+
+6.
+**学习技巧：**
+AppDelegate.m文件中(需要注意的两个函数)：
+```
+//应用程序获取焦点的时候调用（application已经有主窗口并且显示）
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    NSLog(@"%s\n",__func__);
+    UITabBarController *tabVc = (UITabBarController *)application.keyWindow.rootViewController;
+    NSLog(@"%@\n",NSStringFromCGRect(tabVc.tabBar.frame));
+    NSLog(@"%@\n",tabVc.tabBar.subviews);
+    NSLog(@"%@\n",application.keyWindow);
+    for (UIView *chileview in tabVc.tabBar.subviews) {
+       // if ([chileview isKindOfClass:[UIImageView class]]) { //判断是否是本类或者子类
+        if ([chileview isMemberOfClass:[UIImageView class]]){  //判断是否是本类
+            [chileview removeFromSuperview];
+        }
+        if(chileview.bounds.size.height == 49)
+        {
+            [chileview removeFromSuperview];
+        }
+    }
+}
+
+
+
+//程序关闭的时候会调用该函数
+//程序进入后台的时候会进入休眠状态，应用程序中所有事件都不接收，所以，在后台关闭程序是不会调用这个函数的。
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    NSLog(@"%s\n",__func__);
+}
+
+```
+
+7.
+**学习技巧:**
+（1）导航栏上的控件的同个位置，只能够显示同个控件，也就是说如果一开始放文字，然后给该按钮添加图片，图片会覆盖掉文字的；
+
+
+8.
+**学习技巧：**
+（1）静态单元格小技巧：选中cell，选择为static的style，然后只保留一行，先搞定一行，然后再看有多少组，设置setion，然后再每一组中用cmd+c复制，cmd+v粘贴就好了！注意要选择是group还是plain。
+（2）tableview的指示器设置：
+![这里写图片描述](http://img.blog.csdn.net/20150906211130754)
+（3）将文本居中的好方法：将宽度拉到与屏幕大小一致，然后选择居中，以后如果文字发生改变，则可以自动居中；
+
+（4）如果在tabBarCOntroller跳转出去的页面不需要底部的条的话，则可以选中该控制器，勾选下列选项：
+![这里写图片描述](http://img.blog.csdn.net/20150906213429410)
+
+（5）在做跳转时，如果前一个导航栏的标题不是我们下一个页面返回的按钮的标题，这时可以选中前一个导航栏的Navigation Item，设置如下：
+![这里写图片描述](http://img.blog.csdn.net/20150906214121475)
+，这样，就能够实现返回的按钮的文字是“联系人”了；
+
+（6）一个模块一个控制器;
+（7）静态单元格的行数和组数都已经固定死了，当在storyboard时做静态单元格的界面时，控制器如果继承来自tableviewController的类，那么Xcode会自动帮我们写默认的函数，此时会将我们之前在界面中写的单元格给抹掉，所以，可以注释掉默认的代码。
+```
+#pragma mark - Table view data source
+
+//- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+//#warning Incomplete implementation, return the number of sections
+//    return 0;
+//}
+//
+//- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+//#warning Incomplete implementation, return the number of rows
+//    return 0;
+//}
+
+
+```
+如果第一个函数返回的数目比实际静态单元格的数量多，会发生内存错误；少的话就显示少些组；
+（8）iOS7后只有在UINavigationController中UIScrollView顶部会自动添加64的滚动区；
+
+9.
+**学习技巧：**
+除了push之外，还有另外一种控制器的切换方式，那就是Modal
+任何控制器都能通过Modal的形式展示出来
+Modal的默认效果：新控制器从屏幕的最底部往上钻，直到盖住之前的控制器为止
+
+以Modal的形式展示控制器
+```
+- (void)presentViewController:(UIViewController *)viewControllerToPresent animated: (BOOL)flag completion:(void (^)(void))completion
+```
+关闭当初Modal出来的控制器
+```
+- (void)dismissViewControllerAnimated: (BOOL)flag completion: (void (^)(void))completion;
+```
+
+10.
+**学习技巧：**
+选择push必须依赖于导航控制器，modal则不需要；
+
+11.
+**出现问题：**
+有时候出现拖动不了bar button进去navigation item的情况；
+
+ **解决方法：**重新开启Xcode就好了；
+12.
+**学习技巧：**
+navigation的导航条只跟栈顶控制器有关，所以如果先有导航控制器，再由tabBarController，这样，只能在tabBarController设置导航条的标题，所以一般都先由tabBarController，再有导航控制器；
+13.
+**学习技巧：**
+APP主流框架：
+![这里写图片描述](http://img.blog.csdn.net/20150906233102229)
+
+14.
+**学习技巧：**
+![这里写图片描述](http://img.blog.csdn.net/20150906233313085)
+
+2015.09.07
+1.Quartz 2D学习笔记
 **学习技巧：**
 
-（3）
-**学习技巧：**
+（1）画出一条简单的线：
+```
+//当视图显示的时候会调用，默认只会调用一次
+- (void)drawRect:(CGRect)rect {
+    //1.获取上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    //2.设置绘图信息（拼接路径）
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    
+    //3.设置起点
+    [path moveToPoint:CGPointMake(10, 10)];
+    
+    //4.添加一条线到某个点
+    [path addLineToPoint:CGPointMake(125, 125)];
+//    [path addLineToPoint:CGPointMake(240, 10)];
+    //5.将路径添加到上下文
+    //path.CGPath 能够将UIKit的路径转换成CoreGraphics,只要是CG开头就可以
+    CGContextAddPath(ctx, path.CGPath);
+    
+    //6.把上下文渲染到视图
+    //stroke描边
+    CGContextStrokePath(ctx);
+    
+    
+    
+}
+```
 
+（2）注意，
+```
+    [path addLineToPoint:CGPointMake(125, 125)];
+
+```
+添加了一条线后，这条线的终点将成为下一条线的起点；
 （3）
+设置线条的属性：
+```
+    CGContextAddPath(ctx, path.CGPath);
+    
+    //设置绘图状态
+    //设置线宽
+    CGContextSetLineWidth(ctx, 10);
+    
+    //设置线的样式
+    CGContextSetLineCap(ctx, kCGLineJoinRound);
+    
+    //设置颜色
+//    CGContextSetRGBStrokeColor(ctx, 1, 0, 0, 1);//通过RGB来设置
+    [[UIColor redColor] set];//较简便的方法
+    
+    CGContextStrokePath(ctx);
+    
+```
+
+（4）
+画一条曲线：
+```
+    //1、获取上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    //2.拼接路径
+    UIBezierPath *path  = [UIBezierPath bezierPath];
+    
+    CGPoint startp = CGPointMake(10, 125);
+    CGPoint endp = CGPointMake(240, 125);
+    CGPoint controlp = CGPointMake(10, 10);
+    
+    [path moveToPoint:startp];
+    //3.
+    [path addQuadCurveToPoint:endp controlPoint:controlp];
+    
+    //
+    CGContextAddPath(ctx, path.CGPath);
+    
+    CGContextStrokePath(ctx);
+    
+```
+参考网址：http://donbe.blog.163.com/blog/static/138048021201052093633776/
+
+（5）
+画一个三角形：
+```
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+    //1.获取上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    //2.拼接路径
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    
+    CGPoint startP = CGPointMake(10, 10);
+    [path moveToPoint:startP];
+    
+    [path addLineToPoint:CGPointMake(125, 125)];
+    
+    [path addLineToPoint:CGPointMake(240, 10)];
+    
+//    [path addLineToPoint:startP];//指向起点，则形成回路
+    [path closePath];//关闭路径，自动从上一个的终点指向最初的起点
+    
+    //3.把路径添加到上下文
+    CGContextAddPath(ctx, path.CGPath);
+    
+    //设置属性
+    [[UIColor blueColor] setFill];//设置里面的填充
+    [[UIColor redColor] setStroke];//设置线框的颜色
+    
+    CGContextSetLineWidth(ctx, 15);//这句对于（1）（2）两句是无效的，只对（3）有效
+    
+    //4.渲染上下文
+//    CGContextStrokePath(ctx);//只是将线连接起来（1）
+//    CGContextFillPath(ctx);//填充包括里面内容，是黑色的（2）
+    
+    //既填充又描边 kCGPathFillStroke
+    CGContextDrawPath(ctx, kCGPathFillStroke);//(3)
+    
+    
+}
+
+```
+
+效果图：
+![这里写图片描述](http://img.blog.csdn.net/20150907125458629)
+
+
+（3）画矩形：
+```
+-(void)drawjuxing
+{
+    // Drawing code
+    //1.获取上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    //2.拼接路径
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, 250, 250)];//画矩形
+    
+    path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(10, 10, 200, 200) cornerRadius:100];//画圆
+    
+    //3.把路径添加到上下文
+    CGContextAddPath(ctx, path.CGPath);
+    
+    //4.渲染上下文
+    CGContextStrokePath(ctx);//只是将线连接起来（1）
+    //    CGContextFillPath(ctx);//填充包括里面内容，是黑色的（2）
+    
+    //既填充又描边 kCGPathFillStroke
+    //    CGContextDrawPath(ctx, kCGPathFillStroke);//(3)
+}
+
+```
+（3）
+画圆弧以及填充圆
+```
+-(void)drwatianchongyuan
+{
+    //1.获取上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    //2.拼接路径
+    CGPoint center = CGPointMake(125, 125);//圆心
+    CGFloat radius = 100;//半径
+    CGFloat startA = 0;//起始角
+    CGFloat endA = M_PI_2;//转过的角度
+    UIBezierPath *path = [UIBezierPath bezierPathWithArcCenter:center radius:radius startAngle:startA endAngle:endA clockwise:YES];
+    
+    [path addLineToPoint:center];//这句话让终点在圆心，填充时就能够填充四分之一圆了
+    //3.将路径添加到上下文
+    CGContextAddPath(ctx, path.CGPath);
+    
+    //4.渲染上下文
+    //    CGContextStrokePath(ctx);
+    CGContextFillPath(ctx);
+
+}
+//画弧
+-(void)drwaArc
+{
+    //1.获取上下文
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    //2.拼接路径
+    CGPoint center = CGPointMake(125, 125);//圆心
+    CGFloat radius = 100;//半径
+    CGFloat startA = 0;//起始角
+    CGFloat endA = M_PI_2;//转过的角度
+    UIBezierPath *path = [UIBezierPath bezierPathWithArcCenter:center radius:radius startAngle:startA endAngle:endA clockwise:YES];
+    
+    //3.将路径添加到上下文
+    CGContextAddPath(ctx, path.CGPath);
+    
+    //4.渲染上下文
+    CGContextStrokePath(ctx);
+}
+```
+填充圆效果图：
+![这里写图片描述](http://img.blog.csdn.net/20150907161637538)
+画圆时的初始位置是右边缘线中心位置，所以
+```
+ CGFloat startA = 0;//起始角
+```
+
+（4）
+![这里写图片描述](http://img.blog.csdn.net/20150907164028572)
+代码名字叫做：我的下载进度条
+
+
+2.
 **学习技巧：**
+iOS的转义字符是%，所以，如果要输出%，应该写“%%”；
+
+3.
+UIKit下的画文字和画图片
+```
+-(void)drawView:(CGRect)rect
+{
+    UIImage *image = [UIImage imageNamed:@"屏幕快照 2015-09-07 10.45.54"];
+    
+    //    [image drawAtPoint:CGPointZero];(1)
+    //    [image drawInRect:CGRectMake(0, 0, 100, 100)];//会自动缩放，如果图片过大会缩小至指定rect；(2)
+    
+    //设置裁剪区，超出裁剪区的区域都被裁去
+    UIRectClip(CGRectMake(0, 0, 100, 100));//如果需要裁减才需要调用此函数
+    [image drawAsPatternInRect:rect];//平铺(3）
+}
+
+//画文字
+-(void)drawText
+{
+    // Drawing code
+    NSString *text = @"luotuxiu";
+    
+    CGRect textFrame = CGRectMake(0, 0, 100, 100);
+    NSDictionary *dict  = @{
+                            NSFontAttributeName:[UIFont systemFontOfSize:20],
+                            NSForegroundColorAttributeName:[UIColor redColor],
+                            NSStrokeWidthAttributeName:@10
+                            
+                            };
+    //    UIRectFill(textFrame);//画矩形
+    //    [text drawInRect:textFrame withAttributes:dict];//画文字,会自动换行
+    [text drawAtPoint:CGPointZero withAttributes:dict];//也是画文字，但不会自动换行
+}
+
+```
+
+4.
+**学习技巧：**
+如果继承UIImageView的话，是不能够调用Draw方法的，因为苹果已经做好了。
+
+5.
+**学习技巧：**
+Quartz 2D中一根线一个路径管理。
+
+6.
+**学习技巧：**
+关于图形上下文的出栈入栈操作：
+```
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    CGContextSaveGState(ctx);//把上下文保存放在栈中，相当于保存一份最初的上下文
+       //绘图信息
+    UIBezierPath *path = [UIBezierPath bezierPath];
+    
+    [path moveToPoint:CGPointMake(10, 125)];
+    
+    [path addLineToPoint:CGPointMake(240, 125)];
+    
+
+    
+    CGContextAddPath(ctx, path.CGPath);
+
+
+    //设置绘图状态
+    [[UIColor redColor] set];
+    CGContextSetLineWidth(ctx, 10);
+    CGContextSetLineCap(ctx, kCGLineCapRound);//设置末尾是圆角
+    
+    CGContextStrokePath(ctx);
+    
+    UIBezierPath *path1 = [UIBezierPath bezierPath];
+    
+    [path1 moveToPoint:CGPointMake(125, 10)];
+    
+    [path1 addLineToPoint:CGPointMake(125, 240)];
+    CGContextAddPath(ctx, path1.CGPath);
+    
+    //把栈顶上下文取出来，这样相当于上下文已经重新初始化了，所以替换成当前上下文
+    CGContextRestoreGState(ctx);
+//    //设置绘图状态
+//    [[UIColor redColor] set];
+//    CGContextSetLineWidth(ctx, 1);
+//    CGContextSetLineCap(ctx, kCGLineCapRound);//设置末尾是圆角
+    CGContextStrokePath(ctx);
+}
+```
+
+7.
+**学习笔记：**
+上下文的缩放平移可以用矩阵：
+```
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    
+    //矩阵变换要在拼接路径前完成,平移上下文
+    CGContextTranslateCTM(ctx, 100, 100);
+    
+    //旋转上下文
+    CGContextRotateCTM(ctx, M_PI_4);
+    
+    //缩放上下文,
+    //void CGContextScaleCTM (CGContextRef c,CGFloat sx,CGFloat sy);sx代表着x缩放了多少倍，以此类推
+    CGContextScaleCTM(ctx, 0.5, 1.2);
+    
+    UIBezierPath *path = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(-50, -100, 150,200)];
+    
+    
+    CGContextAddPath(ctx, path.CGPath);
+    
+    CGContextFillPath(ctx);
+}
+```
+8.
+**学习技巧：**
+生成图片水印
+```
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view, typically from a nib.
+    UIImage *oldImage = [UIImage imageNamed:@"1"];
+    /**     *
+     *   开启上下文，位图的上下文
+     *  @param size  尺寸,新的图片的大小
+     *  @param opaque 不透明 YES
+     */
+    UIGraphicsBeginImageContextWithOptions(oldImage.size, NO, 0.0);
+    
+    [oldImage drawAtPoint:CGPointZero];
+    
+    NSString *text = @"哈哈哈哈";
+    NSDictionary *dict = @{
+                           NSFontAttributeName :[UIFont systemFontOfSize:15],
+                           NSForegroundColorAttributeName:[UIColor redColor]
+                           };
+    [text drawAtPoint:CGPointMake(140, 140) withAttributes:dict];
+    
+    //获取新的图片,UIGraphicsGetImageFromCurrentImageContext返回一个Image
+    UIImage *newImage =  UIGraphicsGetImageFromCurrentImageContext();
+    _imageView.image = newImage;
+    
+    //关闭上下文,以免耗内存
+    UIGraphicsEndImageContext();
+    
+    //把图片转换成PNG格式的二进制数据
+    NSData *data = UIImagePNGRepresentation(newImage);
+    //写入桌面
+    [data writeToFile:@"/Users/xulei/Desktop/newImage.png" atomically:YES];
+}
+```
+2015.09.08
+1.
+**学习技巧：**
+先调用-(id)initWithFrame:(CGRect)frame，再调用-(void)awakeFromNib；注意顺序；
+
+![这里写图片描述](http://img.blog.csdn.net/20150908103103384)
+
+2.
+**学习技巧：**
+使用tool Bar可以让那些控件自动摆放好位置；
+
+3.
+**学习技巧：**
+按住ctrl，然后从一个按钮点击到另一个按钮，可以设置两者间的位置关系：
+![这里写图片描述](http://img.blog.csdn.net/20150908151113609)
+按住shift可以选择多项，第一个选择则表示保持与左边的间距，center Vertically表示保持和另一个控件水平；
+
+4.
+**学习技巧：**
+清空该控件的约束![这里写图片描述](http://img.blog.csdn.net/20150908151917283)
+
+5.
+**学习技巧：**
+如果在storyboard拖监听事件时拖了两次，也会发生错误的；
+
+6.
+**学习技巧：**
+扩展属性只能够使用继承，扩展方法可以使用分类；
+
+7.
+**学习技巧：**
+左上角的空白区域的边就是_imageView.layer.cornerRadius，圆角半径，当设置成边长一半时，则变成一个圆；
+![这里写图片描述](http://img.blog.csdn.net/20150908230209324)
+
+8.
