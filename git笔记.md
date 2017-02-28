@@ -65,6 +65,11 @@ git commit -am "xxx" === git add .  +  git commit -m ""
 git push -u origin 分支名
 ```
 (11)git merge用于合并指定分支到当前分支
+tips:
+--no-ff 可以不以fast-forward的模式合并，这样就能够在图案上多出分支那条线
+```
+git merge --no-ff dev
+```
 (12)删除远程分支
 ```
 git push origin --delete 远程分支名
