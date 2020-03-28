@@ -1,6 +1,14 @@
 module.exports = {
   title: '前端技术博客',
   description: '骆图秀，笔记，前端，技术博客',
+  plugins: [
+    [
+      '@vuepress/google-analytics',
+      {
+        ga: 'UA-161394175-1' // UA-00000000-0
+      }
+    ]
+  ],
   themeConfig: {
     nav: [
       {

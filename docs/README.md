@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /hero.png
+# heroImage: /hero.png
 heroText: 前端技术博客
 tagline: 快来看看
 actionText: 快速上手 →
