@@ -47,7 +47,7 @@ git diff
 git checkout -b 分支名
 ```
 
-tips：新建并切换到远程的制定分支
+Tip：新建并切换到远程的制定分支
 
 ```
 git checkout -b remotes/origin/远程分支名
@@ -77,14 +77,14 @@ git pull
 git commit -m 'xxx'
 ```
 
-tips1:
+Tip1:
 **提交某个制定文件到本地仓库**
 
 ```
 git commit src/index.vue -m '上传代码'
 ```
 
-tips2:注意参数不一样
+Tip2:注意参数不一样
 
 ```
 git commit -am "xxx" === git add .  +  git commit -m ""
@@ -97,7 +97,7 @@ git push -u origin 分支名
 ```
 
 (11)git merge 用于合并指定分支到当前分支
-tips:
+Tip:
 --no-ff 可以不以 fast-forward 的模式合并，这样就能够在图案上多出分支那条线
 
 ```

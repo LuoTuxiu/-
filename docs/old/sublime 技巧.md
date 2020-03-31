@@ -69,7 +69,7 @@ Ctrl+D
 command+ f
 ```
 
-tips: 全局查找
+Tip: 全局查找
 
 ```
 command+Shift+F
