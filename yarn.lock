@@ -914,6 +914,12 @@
   dependencies:
     lodash.debounce "^4.0.8"
 
+"@vuepress/plugin-back-to-top@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.npm.taobao.org/@vuepress/plugin-back-to-top/download/@vuepress/plugin-back-to-top-1.4.0.tgz#baca4daf8de469544956bb21903dbeba691d40e4"
+  dependencies:
+    lodash.debounce "^4.0.8"
+
 "@vuepress/plugin-google-analytics@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npm.taobao.org/@vuepress/plugin-google-analytics/download/@vuepress/plugin-google-analytics-1.4.0.tgz#0243da6ff80e47b1d41d0227cb8bcb040ebba90f"

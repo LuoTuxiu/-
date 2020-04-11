@@ -10,6 +10,8 @@ module.exports = {
 	],
 	plugins: [
 		[
+			'@vuepress/nprogress',
+			'@vuepress/back-to-top',
 			'@vuepress/google-analytics',
 			{
 				ga: 'UA-161394175-1' // UA-00000000-0
@@ -32,23 +34,39 @@ module.exports = {
 					'/front/css/',
 					'front/调试技巧',
 					'front/如何禁止谷歌浏览器自动填充密码',
+					'front/如何跨域取到response额外的的headers',
+					'front/const定义不可变数组',
+					'front/HTTP',
+					'front/img等inline元素引发的底部间隙问题',
 					'front/前端杂'
 				]
 			},
 			{
 				title: '计算机基础',
 				path: '/computer/',
-				children: ['/computer/', 'computer/快速排序', 'computer/链表反转']
+				collapsable: false,
+				children: [
+					'/computer/',
+					'computer/algorithm/快速排序',
+					'computer/algorithm/链表反转',
+					'computer/Git的使用'
+				]
 			},
 			{
 				title: '工具类',
 				path: '/tools/',
-				children: ['/tools/', 'tools/如何开启mac的三指拖移']
+				collapsable: false,
+				children: [
+					'/tools/',
+					'tools/如何开启mac的三指拖移',
+					'tools/sublime常用快捷键'
+				]
 			},
 			{
 				title: '其它',
 				path: '/old/',
-				children: ['/old/', 'old/linux学习笔记']
+				collapsable: false,
+				children: ['old/linux学习笔记']
 			}
 		]
 		// sidebar: {
