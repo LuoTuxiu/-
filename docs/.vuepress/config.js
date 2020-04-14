@@ -32,6 +32,7 @@ module.exports = {
 				path: '/front/',
 				children: [
 					'/front/css/',
+					'front/Nuxt速度优化实战',
 					'front/调试技巧',
 					'front/如何禁止谷歌浏览器自动填充密码',
 					'front/如何跨域取到response额外的的headers',
