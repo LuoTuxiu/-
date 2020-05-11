@@ -5,25 +5,25 @@ module.exports = {
 	// keywords: '流年,前端技术博客，前端',
 	head: [
 		{
-			keypwds: '流年,前端技术博客，前端'
-		}
+			keypwds: '流年,前端技术博客，前端',
+		},
 	],
 	plugins: [
+		'@vuepress/nprogress',
+		'@vuepress/back-to-top',
 		[
-			'@vuepress/nprogress',
-			'@vuepress/back-to-top',
 			'@vuepress/google-analytics',
 			{
-				ga: 'UA-161394175-1' // UA-00000000-0
-			}
-		]
+				ga: 'UA-161394175-1', // UA-00000000-0
+			},
+		],
 	],
 	themeConfig: {
 		nav: [
 			{
 				text: 'Github',
-				link: 'https://github.com/LuoTuxiu'
-			}
+				link: 'https://github.com/LuoTuxiu',
+			},
 		],
 		sidebar: [
 			{
@@ -39,8 +39,8 @@ module.exports = {
 					'front/const定义不可变数组',
 					'front/HTTP',
 					'front/img等inline元素引发的底部间隙问题',
-					'front/前端杂'
-				]
+					'front/前端杂',
+				],
 			},
 			{
 				title: '计算机基础',
@@ -50,8 +50,8 @@ module.exports = {
 					'/computer/',
 					'computer/algorithm/快速排序',
 					'computer/algorithm/链表反转',
-					'computer/Git的使用'
-				]
+					'computer/Git的使用',
+				],
 			},
 			{
 				title: '工具类',
@@ -60,21 +60,21 @@ module.exports = {
 				children: [
 					'/tools/',
 					'tools/如何开启mac的三指拖移',
-					'tools/sublime常用快捷键'
-				]
+					'tools/sublime常用快捷键',
+				],
 			},
 			{
 				title: '其它',
 				path: '/old/',
 				collapsable: false,
-				children: ['old/linux学习笔记']
-			}
-		]
+				children: ['old/linux学习笔记'],
+			},
+		],
 		// sidebar: {
 		//   '/old/': ['' /* /foo/ */],
 		//   '/computer/': ['' /* /foo/ */],
 		//   '/front/': [''],
 		//   '/': ['' /* / */]
 		// }
-	}
+	},
 };

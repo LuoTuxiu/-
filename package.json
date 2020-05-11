@@ -1,27 +1,27 @@
 {
-  "name": "learn-note",
-  "version": "1.0.0",
-  "description": "'前端技术博客'",
-  "main": "index.js",
-  "scripts": {
-    "dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LuoTuxiu/Learn-note.git"
-  },
-  "author": "骆图秀",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/LuoTuxiu/Learn-note/issues"
-  },
-  "homepage": "https://github.com/LuoTuxiu/Learn-note#readme",
-  "devDependencies": {
-    "@vuepress/plugin-back-to-top": "^1.4.0",
-    "@vuepress/plugin-google-analytics": "^1.4.0",
-    "@vuepress/plugin-nprogress": "^1.4.0",
-    "vuepress": "^1.4.0"
-  }
+	"name": "learn-note",
+	"version": "1.0.0",
+	"description": "'前端技术博客'",
+	"main": "index.js",
+	"scripts": {
+		"dev": "vuepress dev docs",
+		"build": "vuepress build docs",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LuoTuxiu/Learn-note.git"
+	},
+	"author": "骆图秀",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/LuoTuxiu/Learn-note/issues"
+	},
+	"homepage": "https://github.com/LuoTuxiu/Learn-note#readme",
+	"devDependencies": {
+		"@vuepress/plugin-back-to-top": "^1.4.0",
+		"@vuepress/plugin-google-analytics": "^1.4.0",
+		"@vuepress/plugin-nprogress": "^1.4.0",
+		"vuepress": "^1.4.0"
+	}
 }

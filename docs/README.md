@@ -7,7 +7,7 @@ meta:
 heroText: 前端技术博客
 tagline: 快来看看
 actionText: 快速上手 →
-actionLink: /front/
+actionLink: /front/Nuxt速度优化实战/
 ---
 
 <footer class="beian">

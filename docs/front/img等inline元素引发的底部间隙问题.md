@@ -51,7 +51,6 @@ css 部分为：
 .topLogo{
   width: 200px;
   height: 200px;
-  background-color: green;
 }
 span{
   background: red;
@@ -88,7 +87,6 @@ span{
 .topLogo{
   width: 200px;
   height: 200px;
-  background-color: green;
   vertical-align: bottom; // 把基线对齐方式改成bottom即可
 }
 span{
@@ -113,7 +111,6 @@ span{
 .topLogo{
   width: 200px;
   height: 200px;
-  background-color: green;
 }
 span{
   background: red;
@@ -144,7 +141,6 @@ span{
 .topLogo{
   width: 200px;
   height: 200px;
-  background-color: green;
   display: block; // 增加了这行
 }
 span{
@@ -157,7 +153,7 @@ span{
 图 5
 
 可以看到，间隙已经去掉；
-不过有产生副作用
+不过有产生副作用: 后面的元素会被换行（有可能不是你想要的效果）
 
 本文参考了链接
 

@@ -1,49 +1,81 @@
 # iOS 多线程
 
-零、线程的注意点（掌握） 1.不要同时开太多的线程（1~3 条线程即可，不要超过 5 条） 2.线程概念
-1> 主线程 ： UI 线程，显示、刷新 UI 界面，处理 UI 控件的事件
-2> 子线程 ： 后台线程，异步线程 3.不要把耗时的操作放在主线程，要放在子线程中执行
+零、线程的注意点（掌握）
 
-一、NSThread（掌握） 1.创建和启动线程的 3 种方式
-1> 先创建，后启动
+1.不要同时开太多的线程（1~3 条线程即可，不要超过 5 条）
+
+2.线程概念
+
+> 主线程 ： UI 线程，显示、刷新 UI 界面，处理 UI 控件的事件
+> 子线程 ： 后台线程，异步线程
+
+3.不要把耗时的操作放在主线程，要放在子线程中执行
+
+一、NSThread（掌握）
+
+1.创建和启动线程的 3 种方式
+
+> 先创建，后启动
+
+```
 // 创建
-NSThread \*thread = [[NSThread alloc] initWithTarget:self selector:@selector(download:) object:nil];
+NSThread *thread = [[NSThread alloc] initWithTarget:self selector:@selector(download:) object:nil];
 // 启动
 [thread start];
+```
 
-2> 创建完自动启动
+> 创建完自动启动
+
+```
 [NSThread detachNewThreadSelector:@selector(download:) toTarget:self withObject:nil];
+```
 
-3> 隐式创建（自动启动）
+> 隐式创建（自动启动）
+
+```
 [self performSelectorInBackground:@selector(download:) withObject:nil];
+```
 
 2.常见方法
+
 1> 获得当前线程
 
-- (NSThread \*)currentThread;
+```
+(NSThread *)currentThread;
+```
 
 2> 获得主线程
 
-- (NSThread \*)mainThread;
+```
+(NSThread *)mainThread;
+```
 
 3> 睡眠（暂停）线程
 
-- (void)sleepUntilDate:(NSDate \*)date;
-- (void)sleepForTimeInterval:(NSTimeInterval)ti;
+```
+(void)sleepUntilDate:(NSDate *)date;
+(void)sleepForTimeInterval:(NSTimeInterval)ti;
+```
 
 4> 设置线程的名字
 
-- (void)setName:(NSString \*)n;
-- (NSString \*)name;
+```
+(void)setName:(NSString *)n;
+(NSString *)name;
+```
 
-二、线程同步（掌握） 1.实质：为了防止多个线程抢夺同一个资源造成的数据安全问题
+二、线程同步（掌握）
+
+1.实质：为了防止多个线程抢夺同一个资源造成的数据安全问题
 
 2.实现：给代码加一个互斥锁（同步锁）
 @synchronized(self) {
 // 被锁住的代码
 }
 
-三、GCD 1.队列和任务
+三、GCD
+
+1.队列和任务
 1> 任务 ：需要执行什么操作
 
 - 用 block 来封装任务
@@ -51,26 +83,39 @@ NSThread \*thread = [[NSThread alloc] initWithTarget:self selector:@selector(dow
 2> 队列 ：存放任务
 
 - 全局的并发队列 ： 可以让任务并发执行
-  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+```
+dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+```
 
 - 自己创建的串行队列 ： 让任务一个接着一个执行
+
+```
   dispatch_queue_t queue = dispatch_queue_create("cn.heima.queue", NULL);
+```
 
 - 主队列 ： 让任务在主线程执行
-  dispatch_queue_t queue = dispatch_get_main_queue();
 
-  2.执行任务的函数
-  1> 同步执行 : 不具备开启新线程的能力
-  dispatch_sync...
+```
+  dispatch_queue_t queue = dispatch_get_main_queue();
+```
+
+2.执行任务的函数
+
+1> 同步执行 : 不具备开启新线程的能力
+dispatch_sync...
 
 2> 异步执行 : 具备开启新线程的能力
 dispatch_async...
 
 3.常见的组合（掌握）
+
 1> dispatch_async + 全局并发队列
 2> dispatch_async + 自己创建的串行队列
 
 4.线程间的通信（掌握）
+
+```
 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 // 执行耗时的异步操作...
 
@@ -78,32 +123,49 @@ dispatch_async(dispatch_get_main_queue(), ^{
 // 回到主线程，执行 UI 刷新操作
 });
 });
+```
 
 5.GCD 的所有 API 都在 libdispatch.dylib，Xcode 会自动导入这个库
 
-- 主头文件 ： #import <dispatch/dispatch.h> （自动导入的）
+- 主头文件 ：
 
-  6.延迟执行（掌握）
-  1> perform....
-  // 3 秒后自动回到当前线程调用 self 的 download:方法，并且传递参数：@"http://555.jpg"
-  [self performSelector:@selector(download:) withObject:@"http://555.jpg" afterDelay:3];
+```
+#import <dispatch/dispatch.h> （自动导入的）
+```
+
+6.延迟执行（掌握）
+
+1> perform....
+
+```
+// 3 秒后自动回到当前线程调用 self 的 download:方法，并且传递参数：@"http://555.jpg"
+[self performSelector:@selector(download:) withObject:@"http://555.jpg" afterDelay:3];
+```
 
 2> dispatch_after...
+
+```
 // 任务放到哪个队列中执行
 dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 double delay = 3; // 延迟多少秒
 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay \* NSEC_PER_SEC)), queue, ^{
 // 3 秒后需要执行的任务
 });
+```
 
 7.一次性代码（掌握）
+
+```
 static dispatch_once_t onceToken;
 dispatch_once(&onceToken, ^{
 // 这里面的代码，在程序运行过程中，永远只会执行 1 次
 });
+```
 
 四、单例模式(懒汉式)
 1.ARC
+
+```
 @interface HMDataTool : NSObject
 
 - (instancetype)sharedDataTool;
@@ -136,8 +198,11 @@ static id \_instace;
   return \_instace;
   }
   @end
+```
 
-  2.非 ARC
+2.非 ARC
+
+```
   @interface HMDataTool : NSObject
 
 - (instancetype)sharedDataTool;
@@ -186,8 +251,11 @@ static id \_instace;
   return self;
   }
   @end
+```
 
-五、NSOperation 和 NSOperationQueue 1.队列的类型
+五、NSOperation 和 NSOperationQueue
+
+1.队列的类型
 1> 主队列
 
 - [NSOperationQueue mainQueue]

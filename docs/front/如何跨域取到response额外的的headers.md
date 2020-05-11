@@ -13,7 +13,7 @@ Last-Modified
 Pragma
 ```
 
-如果要读取其他属性，需要在**发送的请求头端**增加以下代码：
+如果要读取其他属性，需要在**发送的请求头**增加以下代码：
 
 ```
 'Access-Control-Expose-Headers': ['Content-Disposition']
