@@ -1,7 +1,7 @@
 module.exports = {
 	title: '流年的前端技术博客',
 	description:
-		'流年的前端技术博客，专注于最新的互联网前沿前端技术，同时记录平时学习的笔记。',
+		'流年的前端技术博客，专注于最新的互联网前沿前端技术，同时记录平时解决问题的笔记。',
 	// keywords: '流年,前端技术博客，前端',
 	head: [
 		{
@@ -31,15 +31,16 @@ module.exports = {
 				collapsable: false,
 				path: '/front/',
 				children: [
-					'/front/css/',
-					'front/Nuxt速度优化实战',
+					'front/网页速度优化实战',
+					'front/js/面试题-手写冻结一个对象',
+					'front/js/面试题-手写数组去重',
 					'front/调试技巧',
 					'front/如何禁止谷歌浏览器自动填充密码',
 					'front/如何跨域取到response额外的的headers',
-					'front/const定义不可变数组',
 					'front/HTTP',
 					'front/img等inline元素引发的底部间隙问题',
 					'front/前端杂',
+					'/front/css/',
 				],
 			},
 			{

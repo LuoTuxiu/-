@@ -5,9 +5,9 @@ meta:
   - name: keywords
     content: 流年,前端技术博客，前端
 heroText: 前端技术博客
-tagline: 快来看看
-actionText: 快速上手 →
-actionLink: /front/Nuxt速度优化实战/
+tagline: 流年的前端技术博客，专注于最新的互联网前沿前端技术，同时记录平时解决问题的笔记
+actionText: 去探索 →
+actionLink: /front/网页速度优化实战/
 ---
 
 <footer class="beian">
@@ -16,3 +16,9 @@ actionLink: /front/Nuxt速度优化实战/
     <a href="http://www.beian.miit.gov.cn" rel="nofollow">粤ICP备20008684号</a><i/>
   </div>
 </footer>
+
+<style lang="scss">
+.copyright{
+  text-align: center;
+}
+</style>
