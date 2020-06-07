@@ -38,7 +38,6 @@ module.exports = {
 					'front/调试技巧',
 					'front/如何禁止谷歌浏览器自动填充密码',
 					'front/如何跨域取到response额外的的headers',
-					'front/关于HTTP你需要掌握的',
 					'front/css/面试题-img等inline元素引发的底部间隙问题',
 					'front/前端杂',
 					'/front/css/',
@@ -50,6 +49,7 @@ module.exports = {
 				collapsable: false,
 				children: [
 					'/computer/',
+					'computer/关于HTTP你需要掌握的',
 					'computer/algorithm/快速排序',
 					'computer/algorithm/链表反转',
 					'computer/Git的使用',
