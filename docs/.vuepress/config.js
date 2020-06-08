@@ -12,11 +12,17 @@ module.exports = {
 		'@vuepress/nprogress',
 		'@vuepress/back-to-top',
 		[
-			'@vuepress/google-analytics',
+			require('./plugins/plugin-google-analytics'),
 			{
 				ga: 'UA-161394175-1', // UA-00000000-0
 			},
 		],
+		// [
+		// 	'@vuepress/google-analytics',
+		// 	{
+		// 		ga: 'UA-161394175-1', // UA-00000000-0
+		// 	},
+		// ],
 	],
 	themeConfig: {
 		nav: [
