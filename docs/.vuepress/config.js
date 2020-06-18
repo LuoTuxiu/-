@@ -3,11 +3,11 @@ module.exports = {
 	description:
 		'流年的前端技术博客，专注于最新的互联网前沿前端技术，同时记录平时解决问题的笔记。',
 	// keywords: '流年,前端技术博客，前端',
-	head: [
-		{
-			keypwds: '流年,前端技术博客，前端',
-		},
-	],
+	// head: [
+	// 	{
+	// 		keypwds: '流年,前端技术博客，前端',
+	// 	},
+	// ],
 	plugins: [
 		'@vuepress/nprogress',
 		'@vuepress/back-to-top',
@@ -37,6 +37,7 @@ module.exports = {
 				collapsable: false,
 				path: '/front/',
 				children: [
+					'front/js/react-关于数据的范式化normalir与redux中的实践',
 					'front/js/阻止浏览器回退的解决思路popstate',
 					'front/网页速度优化实战',
 					'front/js/面试题-手写冻结一个对象',
