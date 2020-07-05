@@ -37,7 +37,7 @@ module.exports = {
 				collapsable: false,
 				path: '/front/',
 				children: [
-					'front/js/react-关于数据的范式化normalir与redux中的实践',
+					'front/前端框架/react/react-关于数据的范式化normalir与redux中的实践',
 					'front/js/阻止浏览器回退的解决思路popstate',
 					'front/网页速度优化实战',
 					'front/js/面试题-手写冻结一个对象',
@@ -56,10 +56,11 @@ module.exports = {
 				collapsable: false,
 				children: [
 					'/computer/',
+					'computer/git/Git-重写历史知多少',
+					'computer/git/Git的常见命令',
 					'computer/关于HTTP你需要掌握的',
 					'computer/algorithm/快速排序',
 					'computer/algorithm/链表反转',
-					'computer/Git的使用',
 				],
 			},
 			{
