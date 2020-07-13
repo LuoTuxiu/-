@@ -37,6 +37,9 @@ module.exports = {
 				collapsable: false,
 				path: '/front/',
 				children: [
+					'front/js/try-catch 能抛出 promise 的异常吗',
+					'front/前端框架/教你搭建nodejs+mongoose+Graphql+Vue+Typescript框架（上）',
+					'front/前端框架/教你搭建nodejs+mongoose+Graphql+Vue+Typescript框架（下）',
 					'front/前端框架/react/react-关于数据的范式化normalir与redux中的实践',
 					'front/js/阻止浏览器回退的解决思路popstate',
 					'front/网页速度优化实战',
