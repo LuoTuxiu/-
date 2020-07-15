@@ -67,7 +67,7 @@ new Vue({
 
 ```
 
-.apollo 的源码如下：
+./apollo 的源码如下：
 
 ```
 import ApolloClient from 'apollo-boost'
@@ -79,3 +79,15 @@ const applloClient = new ApolloClient({
 export default applloClient
 
 ```
+
+### 后端
+
+篇幅过长，请见：[教你搭建 nodejs+mongoose+Graphql+Vue+Typescript 框架（上）](https://www.luotuxiu.cn/front/%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6/%E6%95%99%E4%BD%A0%E6%90%AD%E5%BB%BAnodejs+mongoose+Graphql+Vue+Typescript%E6%A1%86%E6%9E%B6%EF%BC%88%E4%B8%8A%EF%BC%89.html)
+
+## 写在最后
+
+前端开源项目地址：https://github.com/LuoTuxiu/auto-page-web
+
+后端开源项目地址：https://github.com/LuoTuxiu/page-node
+
+更多精彩文章可以看[我的博客](https://www.luotuxiu.cn/)，如有错误，欢迎指正，共同进步

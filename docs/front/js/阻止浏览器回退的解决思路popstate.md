@@ -256,4 +256,4 @@ eusureURL 的定义，参见 src/history/html5.js
   }
 ```
 
-更多精彩文章可以看[我的博客](https://www.luotuxiu.cn/)，如有错误，欢迎指正
+更多精彩文章可以看[我的博客](https://www.luotuxiu.cn/)，如有错误，欢迎指正，共同进步
