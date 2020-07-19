@@ -1,8 +1,6 @@
 # linux 学习笔记
 
-## 2014.11.02:
-
-1.执行 make menuconfig 对配置进行修改时出现错误： 错误提示：
+### 执行 make menuconfig 对配置进行修改时出现错误： 错误提示：
 
 ```
 HOSTCC
@@ -15,16 +13,24 @@ again. _** make[1]: **_ [scripts/kconfig/dochecklxdialog]
 错误 1 make: \_\*\* [menuconfig] 错误 2 解决办法：yum install ncurses-devel
 ![c0e054804c6017c25068bc740af82ca7](https://github.com/LuoTuxiu/Learn-note/blob/master/note%20picture/c0e054804c6017c25068bc740af82ca7.jpg)
 
-2014.11.04 :1.使用 open 函数时提示找不到 fcnt1.h 解决办法：印刷错误，应该是
+### 使用 open 函数时提示找不到 fcnt1.h 解决办法：印刷错误，应该是
+
 fcntl.h，是英文字母 l
 
-2014.11.07 :1.已经搭建好 win7 以及和台式机器 fedora 之间以及和开发板的
-ftp,telnet 登陆，但是未尝试 Fedora 和开发板之间的 nfs 挂载；乱码问题没解决；
+### 常用：linux 常用编码为 UTF-8，而往往 windows 下常用 ANSI 格式
 
-2014.11.11 :1.常用：linux 常用编码为 UTF-8，而往往 windows 下常用 ANSI 格式，这
-里需要转换，请注意；
+这里需要转换，请注意；
 
-2014.11.13 :1.Fedora 关闭防火墙： 重启后生效开启： chkconfig iptables on 关闭：
+### Fedora 关闭防火墙：
+
+重启后生效开启：
+
+```
+chkconfig iptables on
+```
+
+关闭：
+
 chkconfig iptables off 或者 /sbin/chkconfig --level 2345 iptables off
 
 即时生效，重启后失效 service 方式开启： service iptables start 关闭： service
@@ -34,67 +40,91 @@ iptables stop iptables 方式查看防火墙状态： /etc/init.d/iptables statu
 sudo ufw status 检查防火墙的状态 3.利用 FlashTxp 时发现登陆不上 ubuntu，查看是否
 是选择“主动模式”、“被动模式”错误；
 
-2014.11.15 1.两台 linux 机器之间利用 ftp 传输文件时需要若提示： 425 Can't open
-passive connection: Permission denied. Passive mode refused. 解决方法： passive
-mode off；即可；原因？ 2.当在 linux 下编译好 arm 的可执行程序后，下载到 arm 板发
-现提示： -sh: ./button: Permission denied 解决办法：传文件过程中文件属性发生修改
+### 两台 linux 机器之间利用 ftp 传输文件时需要若提示：
+
+425 Can't open passive connection: Permission denied. Passive mode refused.
+
+解决方法：
+
+```
+passive mode off
+```
+
+2.当在 linux 下编译好 arm 的可执行程序后，下载到 arm 板发
+现提示：
+
+```
+-sh: ./button: Permission denied
+```
+
+解决办法：传文件过程中文件属性发生修改
 ，要把文件修改成可执行文件才可以被执行；
 
-2014.11.18; 1.union 数据结构; 公用内存，但只能取到一个变量；
+### 如何在 sourceinsight 里面显示行号 option->document option->editing options 中 show line numbers
 
-2. 如何在 sourceinsight 里面显示行号 option->document option->editing options 中
-   ，show line numbers 2014.11.20:
-1. printk 和 printf 的区别： printk 是在内核中运行的向控制台输出显示的函数
-   ，Linux 内核首先在内核空间分配一个静态缓冲区，作为显示用的空间，然后调用
-   sprintf，格式化显示字符串，最后调用 tty_write 向终端进行信息的显示。 printk
-   与 printf 的差异，是什么导致一个运行在内核态而另一个运行用户态？其实这两个函
-   数的几乎是相同的，出现这种差异是因为 tty_write 函数需要使用 fs 指向的被显示的
-   字符串，而 fs 是专门用于存放用户态段选择符的，因此，在内核态时，为了配合
-   tty_write 函数，printk 会把 fs 修改为内核态数据段选择符 ds 中的值，这样才能正
-   确指向内核的数据缓冲区，当然这个操作会先对 fs 进行压栈保存，调用 tty_write 完
-   毕后再出栈恢复。总结说来，printk 与 printf 的差异是由 fs 造成的，所以差异也是
-   围绕对 fs 的处理。
-1. unix 中的 EBUSY 什么意思：这是一种标准的错误值，表示 “设备或资源忙”错误。
+### printk 和 printf 的区别：
 
-   2014.11.22 :1.编译驱动模块时可以只编译单个文件，如：比如编译自带的驱动演示
-   ，qq2440*hello.c，可以在配置了 Makefile 和 Kconfig 之后执行 make
-   drivers/char/qq2440_hello.o (注意这里是.o 不是.c) 然后 make
-   drivers/char/qq2440_hello.ko 编译就完成了，只需要几秒钟时间参考链接
-   :http://www.arm9home.net/read.php?tid-2670.html 2.编译 nrf24l01 驱动时出现警
-   告： warning: passing argument 2 of 'SPI_Write_Buf' discards qualifiers from
-   pointer target type note: expected 'uchar *' but argument is of type 'const
-   uchar \_' 解决方法：主要是因为 uchar SPI_Write_Buf(uchar reg, uchar \*pBuf,
-   uchar uchars)定义的时候为 uchar,而我真正在用这个函数的时候却实际赋值的是
-   ：uchar const，导致实际的不对应；改成一一对应即可； 2014.11.28: 1．编译第一个
-   程序：（1）编译模块： 现在 Makefile 里面修改添加上：obj-m +=NRF24L01.o; 在
-   linux3.0.8 下面执行 make drivers/char/NRF24L01.o;生成 NRF24L01.o 文件； 接着
-   ，执行：make drivers/char/NRF24L01.ko; 生成 NRF24L01.ko 文件； 将 ko 文件利用
-   ftp 传入到开发板/lib/modules/3.0.8-FriendlyARM/;将权限改成 777； 进入开发板
-   /lib/modules/3.0.8-FriendlyARM/目录，在当前开发板上执行：insmod NRF24L01.ko
-   加载 NRF24L01 模块，再运行下列命令： cat /proc/devices； 即可发现多出了
-   “NRF24L01”这一行，找到它的主设备号后，接着运行： mknod /dev/NRF24L01 c 241
-   0;(备注：241 是驱动申请的主设备号，其它照常，c 表示的是字符设备)
+printk 是在内核中运行的向控制台输出显示的函数
+，Linux 内核首先在内核空间分配一个静态缓冲区，作为显示用的空间，然后调用
+sprintf，格式化显示字符串，最后调用 tty_write 向终端进行信息的显示。 printk
+与 printf 的差异，是什么导致一个运行在内核态而另一个运行用户态？其实这两个函
+数的几乎是相同的，出现这种差异是因为 tty_write 函数需要使用 fs 指向的被显示的
+字符串，而 fs 是专门用于存放用户态段选择符的，因此，在内核态时，为了配合
+tty_write 函数，printk 会把 fs 修改为内核态数据段选择符 ds 中的值，这样才能正
+确指向内核的数据缓冲区，当然这个操作会先对 fs 进行压栈保存，调用 tty_write 完
+毕后再出栈恢复。总结说来，printk 与 printf 的差异是由 fs 造成的，所以差异也是
+围绕对 fs 的处理。
 
-   2014.11.29 :1.static 定义的静态变量的作用是：生命期延长，即相比自动变量而言，
-   虽然局部函数已经失效，但是 static 定义的变量仍然存在，但是也不能引用，再次调
-   用该函数时才能继续引用该静态变量； 2.关于如何卸载模块：（1）使用命令：rmmod
-   /proc/devices NRF24L01，应该是要加上/proc/devices 才行；对于杂项设备，需要这
-   样子输入：rmmod mini210_leds，就是把驱动后缀去掉，才能卸载，上一行的方法不行
-   ； 2014.11.30： 1.对于 NRF24L01 的理解：（1）本机地址和接收地址，本机地址是指
-   发送出去时对外宣称的本机地址，而不是要发送目标的目标地址；接收地址是指接收哪
-   个地址的数据；（2）在 C 语言的编程中，一个函数若带有返回值，则遇到 return 语
-   句函数终止执行，已经退出了，所以不会执行函数后面的语句； 2014.12.1: (1)在使用
-   talnet 时，发现串口能够输出很多信息，而利用 talnet 则不能显示很多信息，而且，
-   在用 talnet 时竟然连 plg 主文件夹都显示不出原来的文件，只显示了 NRF24L01.ko,
-   和 test 两个文件，而用串口则显示正常，是网络的问题吗？之前都没遇到过；
-   2014.12.4 :1.驱动函数注册时有两种注册方式，各有特点：参见
-   ：http://blog.csdn.net/lanmanck/article/details/4713978 杂项设备（misc
-   device）杂项设备也是在嵌入式系统中用得比较多的一种设备驱动。在 Linux 内核的
-   include/linux 目录下有 Miscdevice.h 文件，要把自己定义的 misc device 从设备定
-   义在这里。其实是因为这些字符设备不符合预先确定的字符设备范畴，所有这些设备采
-   用主编号 10 ，一起归于 misc device，其实 misc_register 就是用主标号 10 调用
-   register_chrdev()的。也就是说，misc 设备其实也就是特殊的字符设备，可自动生成
-   设备节点。
+### unix 中的 EBUSY 什么意思：这是一种标准的错误值，表示 “设备或资源忙”错误。
+
+### 编译驱动模块时可以只编译单个文件，如：比如编译自带的驱动演示
+
+，qq2440\*hello.c，可以在配置了 Makefile 和 Kconfig 之后执行 make
+drivers/char/qq2440_hello.o (注意这里是.o 不是.c) 然后 make
+drivers/char/qq2440_hello.ko 编译就完成了，只需要几秒钟时间参考链接
+:http://www.arm9home.net/read.php?tid-2670.html 2.编译 nrf24l01 驱动时出现警
+告：
+
+```
+warning: passing argument 2 of 'SPI_Write_Buf' discards qualifiers from
+pointer target type note: expected 'uchar *' but argument is of type 'const
+uchar \_'
+```
+
+解决方法：主要是因为 uchar SPI_Write_Buf(uchar reg, uchar \*pBuf,
+uchar uchars)定义的时候为 uchar,而我真正在用这个函数的时候却实际赋值的是
+：uchar const，导致实际的不对应；改成一一对应即可；
+
+2014.11.28: 1．编译第一个
+程序：（1）编译模块： 现在 Makefile 里面修改添加上：obj-m +=NRF24L01.o; 在
+linux3.0.8 下面执行 make drivers/char/NRF24L01.o;生成 NRF24L01.o 文件； 接着
+，执行：make drivers/char/NRF24L01.ko; 生成 NRF24L01.ko 文件； 将 ko 文件利用
+ftp 传入到开发板/lib/modules/3.0.8-FriendlyARM/;将权限改成 777； 进入开发板
+/lib/modules/3.0.8-FriendlyARM/目录，在当前开发板上执行：insmod NRF24L01.ko
+加载 NRF24L01 模块，再运行下列命令： cat /proc/devices； 即可发现多出了
+“NRF24L01”这一行，找到它的主设备号后，接着运行： mknod /dev/NRF24L01 c 241
+0;(备注：241 是驱动申请的主设备号，其它照常，c 表示的是字符设备)
+
+2014.11.29 :1.static 定义的静态变量的作用是：生命期延长，即相比自动变量而言，
+虽然局部函数已经失效，但是 static 定义的变量仍然存在，但是也不能引用，再次调
+用该函数时才能继续引用该静态变量； 2.关于如何卸载模块：（1）使用命令：rmmod
+/proc/devices NRF24L01，应该是要加上/proc/devices 才行；对于杂项设备，需要这
+样子输入：rmmod mini210_leds，就是把驱动后缀去掉，才能卸载，上一行的方法不行
+； 2014.11.30： 1.对于 NRF24L01 的理解：（1）本机地址和接收地址，本机地址是指
+发送出去时对外宣称的本机地址，而不是要发送目标的目标地址；接收地址是指接收哪
+个地址的数据；（2）在 C 语言的编程中，一个函数若带有返回值，则遇到 return 语
+句函数终止执行，已经退出了，所以不会执行函数后面的语句； 2014.12.1: (1)在使用
+talnet 时，发现串口能够输出很多信息，而利用 talnet 则不能显示很多信息，而且，
+在用 talnet 时竟然连 plg 主文件夹都显示不出原来的文件，只显示了 NRF24L01.ko,
+和 test 两个文件，而用串口则显示正常，是网络的问题吗？之前都没遇到过；
+2014.12.4 :1.驱动函数注册时有两种注册方式，各有特点：参见
+：http://blog.csdn.net/lanmanck/article/details/4713978 杂项设备（misc
+device）杂项设备也是在嵌入式系统中用得比较多的一种设备驱动。在 Linux 内核的
+include/linux 目录下有 Miscdevice.h 文件，要把自己定义的 misc device 从设备定
+义在这里。其实是因为这些字符设备不符合预先确定的字符设备范畴，所有这些设备采
+用主编号 10 ，一起归于 misc device，其实 misc_register 就是用主标号 10 调用
+register_chrdev()的。也就是说，misc 设备其实也就是特殊的字符设备，可自动生成
+设备节点。
 
 字符设备(char device) 使用 register_chrdev(LED_MAJOR,DEVICE_NAME,&dev_fops)注册
 字符设备驱动程序时，如果有多个设 备使用该函数注册驱动程序，LED_MAJOR 不能相同，
@@ -253,7 +283,9 @@ http://wenku.baidu.com/link?url=ea_bUrwm2HyS0Rgn6NzBBuQLALSKld_bWG9Mbuj3lteXySkn
 
 2. gzip: stdin: not in gzip format 解决办法今天解压文件时出现如下问题：
 
-# sudo tar zxvf ./jdk-7ull-linux-i586.tar.gz -C /usr/lib/jvm
+```
+sudo tar zxvf ./jdk-7ull-linux-i586.tar.gz -C /usr/lib/jvm
+```
 
 gzip: stdin: not in gzip format tar: Child returned status 1 tar: Error is not
 recoverable: exiting now 问题解决方法如下：将 z 参数换成 j 参数问题解决 bz2 格式

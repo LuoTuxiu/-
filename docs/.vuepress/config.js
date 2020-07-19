@@ -84,7 +84,7 @@ module.exports = {
 				title: '其它',
 				path: '/old/',
 				collapsable: false,
-				children: ['old/linux学习笔记'],
+				children: ['old/iOS 疑难杂症 学习笔记'],
 			},
 		],
 		// sidebar: {
