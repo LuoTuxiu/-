@@ -37,6 +37,9 @@ module.exports = {
 				collapsable: false,
 				path: '/front/',
 				children: [
+					'front/js/关于视频上传及视频播放你该知道的',
+					'front/js/面试题-关于深拷贝浅拷贝',
+					'front/js/js内存泄露及调试技巧',
 					'front/js/try-catch 能抛出 promise 的异常吗',
 					'front/前端框架/教你搭建nodejs+mongoose+Graphql+Vue+Typescript框架（上）',
 					'front/前端框架/教你搭建nodejs+mongoose+Graphql+Vue+Typescript框架（下）',
