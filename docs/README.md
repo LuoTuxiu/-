@@ -7,7 +7,7 @@ meta:
 heroText: 前端技术博客
 tagline: 流年的前端技术博客，专注于最新的互联网前沿前端技术，同时记录平时解决问题的笔记
 actionText: 去探索 →
-actionLink: /computer/git/Git-重写历史知多少
+actionLink: /front/js/危险的target=_blank及rel=noopener
 ---
 
 <footer class="beian">
