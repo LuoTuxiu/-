@@ -1,10 +1,38 @@
 # facebook、twitter、facebook 登录、whatsapp 分享、微信分享
 
+## 几个概念
+
+### 爬虫
+
+所谓爬虫，是一种按照一定的规则，自动地抓取万维网信息的程序或者脚本。
+
+### html 元素图谱
+
+对于国外第三方的分享元素图谱，是写在 html 的 head 部分，分为以下几个：
+
+```
+<meta property="og:url" content="http://www.nytimes.com/2015/02/19/arts/international/when-great-minds-dont-think-alike.html" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="When Great Minds Don’t Think Alike" />
+<meta property="og:description" content="How much does culture influence creative thinking?" />
+<meta property="og:image" content="http://static01.nyt.com/images/2015/02/19/arts/international/19iht-btnumbers19A/19iht-btnumbers19A-facebookJumbo-v2.jpg" />
+```
+
+| Tag            | Description                                                                                                                                                                                                                                                                                                                                                                  | 备注                     |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| og:url         | The canonical URL for your page. This should be the undecorated URL, without session variables, user identifying parameters, or counters. Likes and Shares for this URL will aggregate at this URL. For example, mobile domain URLs should point to the desktop version of the URL as the canonical URL to aggregate Likes and Shares across different versions of the page. | 填写要分享的 url         |
+| og:title       | The title of your article without any branding such as your site name.                                                                                                                                                                                                                                                                                                       | 分享时展示的卡片的标题   |
+| og:description | A brief description of the content, usually between 2 and 4 sentences. This will displayed below the title of the post on Facebook.                                                                                                                                                                                                                                          | 分享时展示的卡片的次标题 |
+| og:image       | The URL of the image that appears when someone shares the content to Facebook. See below for more info, and check out our best practices guide to learn how to specify a high quality preview image.                                                                                                                                                                         | 分享时展示的卡片的背景图 |
+| fb:app_id      | In order to use Facebook Insights you must add the app ID to your page. Insights lets you view analytics for traffic to your site from Facebook. Find the app ID in your App Dashboard.                                                                                                                                                                                      |                          |
+
 ## facebook 分享
 
-官方英文文档：https://developers.facebook.com/docs/sharing/
+[facebook 分享官方英文文档](https://developers.facebook.com/docs/sharing/)
 
-分享原理：facebook 爬虫机器人会去向要分享的 url 访问，拿到对应的 html 解析，分别拿到相应的 html 元素图谱
+分享原理：告诉 facebook 你想要分享的 url，facebook 爬虫机器人会主动向这个 url 发起爬虫操作，拿到对应的 html 解析，分别拿到相应的 html 元素图谱。所以，内网，是无法拿到相应的 html 元素图谱的，所以**内网分享不会有图**
+
+分享示例：
 
 ![20200917231408](https://img-blog.csdnimg.cn/img_convert/e15ac6e3ed87c53346ff2a571d22932a.png)
 
@@ -14,7 +42,7 @@
 
 ### 步骤 2
 
-方式 1：直接 url 分享(注意 url 需要 encode)
+方式 1：超链接分享(**注意 url 需要 encode**)
 
 ```
 https://www.facebook.com/dialog/share?
@@ -41,27 +69,13 @@ https://developers.facebook.com/tools/debug/
 
 ![20200915230011](https://img-blog.csdnimg.cn/img_convert/ce11c4cb21c0dafc1613579e78ca57d5.png)
 
-```
-<meta property="og:url" content="http://www.nytimes.com/2015/02/19/arts/international/when-great-minds-dont-think-alike.html" />
-<meta property="og:type" content="article" />
-<meta property="og:title" content="When Great Minds Don’t Think Alike" />
-<meta property="og:description" content="How much does culture influence creative thinking?" />
-<meta property="og:image" content="http://static01.nyt.com/images/2015/02/19/arts/international/19iht-btnumbers19A/19iht-btnumbers19A-facebookJumbo-v2.jpg" />
-```
-
-| Tag            | Description                                                                                                                                                                                                                                                                                                                                                                  | 备注                     |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| og:url         | The canonical URL for your page. This should be the undecorated URL, without session variables, user identifying parameters, or counters. Likes and Shares for this URL will aggregate at this URL. For example, mobile domain URLs should point to the desktop version of the URL as the canonical URL to aggregate Likes and Shares across different versions of the page. | 填写要分享的 url         |
-| og:title       | The title of your article without any branding such as your site name.                                                                                                                                                                                                                                                                                                       | 分享时展示的卡片的标题   |
-| og:description | A brief description of the content, usually between 2 and 4 sentences. This will displayed below the title of the post on Facebook.                                                                                                                                                                                                                                          | 分享时展示的卡片的此标题 |
-| og:image       | The URL of the image that appears when someone shares the content to Facebook. See below for more info, and check out our best practices guide to learn how to specify a high quality preview image.                                                                                                                                                                         | 分享时展示的卡片的背景图 |
-| fb:app_id      | In order to use Facebook Insights you must add the app ID to your page. Insights lets you view analytics for traffic to your site from Facebook. Find the app ID in your App Dashboard.                                                                                                                                                                                      |                          |
+可以对着上面的表格一一可以看到，facebook 一一解析了 html 的元素
 
 > 这个 debugger 工具很关键，其一，可以用来分析自己的网站是否爬虫元信息是否准确，二来，因为是爬虫的原理，就可能出现，**网站更新了但是分享的内容没有及时更新的 bug**，此时这个工具会有一个 scrape Again 的功能，可以手动触发爬虫
 
 ## facebook 登录
 
-官网地址：https://developers.facebook.com/docs/facebook-login/web/
+[facebook 登录英文文档地址](https://developers.facebook.com/docs/facebook-login/web/)
 
 接入 facebook 登录需要引入 facebook sdk，共计需要 5 个步骤
 
@@ -71,7 +85,7 @@ https://developers.facebook.com/tools/debug/
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
 ```
 
-### 2. 去官网创建一个应用，对应一个 Appid
+### 2. 去[官网](https://developers.facebook.com/apps/)创建一个应用，对应一个 Appid
 
 ### 3. 去官网新增 facebook login 功能，点击左边的 PRODUCT +，选择 facebook login 一步一步操作就好，这里注意：
 
@@ -81,10 +95,10 @@ Valid OAuth Redirect URIs：这个是回调地址，必填。也就是，你想�
 
 ```
 FB.init({
-  appId      : '{app-id}', // 这里填入第2步的appid
-  cookie     : true,                     // Enable cookies to allow the server to access the session.
-  xfbml      : true,                     // Parse social plugins on this webpage.
-  version    : '{api-version}'           // Use this Graph API version for this call.
+  appId: '{app-id}', // 这里填入第2步的appid
+  cookie: true, // Enable cookies to allow the server to access the session.
+  xfbml: true,   // Parse social plugins on this webpage.
+  version: '{api-version}' // Use this Graph API version for this call.
 });
 ```
 
@@ -100,7 +114,7 @@ FB.login(function(response){
 });
 ```
 
-response 的示例：
+登录完后，返回的 response 的示例：
 
 ```
 {
@@ -162,7 +176,7 @@ GET graph.facebook.com/debug_token?
 
 ### 超链接分享
 
-无需带上 appid 即可，注意，url 后面跟着 url 需要 encodeUrl，hashtags 传的是话题
+无需带上 appid 即可，注意，&url 对应的 value 值 需要 encode，hashtags 传的是话题（类似微博的话题）
 
 ```
 https://twitter.com/intent/tweet?text=xxx&url=xxx&hashtags=xxx
@@ -198,7 +212,7 @@ https://api.whatsapp.com/send?text=我要分享 https://www.luotuxiu.cn/
 
 分享原理是通过发送微信 jssdk api 获取分享信息
 
-官方文档：https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html#3
+[官方文档](https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html#3)
 
 ### 1. 微信管理后台配置好 JS 接口安全域名
 
