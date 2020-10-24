@@ -83,6 +83,7 @@ module.exports = {
 					'/tools/',
 					'tools/如何开启mac的三指拖移',
 					'tools/sublime常用快捷键',
+					'tools/mac存储不足怎么办'
 				],
 			},
 			{
