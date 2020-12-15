@@ -50,6 +50,7 @@ module.exports = {
 					'front/前端框架/react/react-类组件和函数组件的区别',
 					'front/前端框架/react/react-实现错误边界或者错误处理',
 					'front/前端框架/react/react-原生事件和合成事件的区别',
+					'front/前端框架/react/jest使用技巧及避坑指南',
 					'front/js/阻止浏览器回退的解决思路popstate',
 					'front/网页速度优化实战',
 					'front/js/面试题-手写冻结一个对象',

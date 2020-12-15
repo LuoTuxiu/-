@@ -113,3 +113,42 @@ jest -u
 这个命令会将新的快照更新到已有快照
 
 ## jest 源码分析
+
+阅读 jest 源码时发现有用到一个--maxWorkers，实际上使用的是 throat 的库，这个库能够实现，控制同时执行的个数，比如，源码中，
+
+```
+
+```
+
+## enzyme 源码分析
+
+阅读 enzyme 源码时发现，有用到一个 Symbo 作为私有属性的功能，如果 Symbol 作为某个对象的属性的话，是无法使用 Object.keys,Object.getOwnPropertyNames 遍历到该属性的，进而可以实现私有属性
+
+```
+// 源码位置：packages/enzyme/src/ReactWrapper.js
+const NODE = sym('__node__');
+const NODES = sym('__nodes__');
+const RENDERER = sym('__renderer__');
+const UNRENDERED = sym('__unrendered__');
+const ROOT = sym('__root__');
+const OPTIONS = sym('__options__');
+const ROOT_NODES = sym('__rootNodes__');
+const WRAPPING_COMPONENT = sym('__wrappingComponent__');
+const LINKED_ROOTS = sym('__linkedRoots__');
+const UPDATED_BY = sym('__updatedBy__');
+
+class ReactWrapper {
+    constructor(nodes, root, passedOptions = {}) {
+      privateSet(this, RENDERER, renderer);
+      renderer.render(nodes, options.context);
+      privateSet(this, ROOT, this);
+      privateSetNodes(this, this[RENDERER].getNode());
+      privateSet(this, OPTIONS, options);
+      privateSet(this, LINKED_ROOTS, []);
+    }
+}
+```
+
+## istanbuljs 源码分析
+
+istanbuljs 是 jest 内置用于产生测试报告的，其原理是通过代码插桩的方式进行统计代码植入，在 jest 跑测试任务时将原代码更换成插桩后的代码，跑完测试任务后就能够得到对应的数值。而代码插桩可以用过 babel 进行代码转换成 AST，进而实现改造
