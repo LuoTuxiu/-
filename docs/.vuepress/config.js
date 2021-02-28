@@ -1,3 +1,8 @@
+// import {generateSidebarData} from './tools'
+const {generateSidebarData} = require('./tools')
+
+console.log(generateSidebarData());
+
 module.exports = {
 	title: '流年的前端技术博客',
 	description:
